@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>WayGo — Učenie</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #05030d;
+            --purple: #a84cff;
+            --purple-light: #d18aff;
+            --text: #ffffff;
+            --muted: #8d879b;
+            --border: rgba(168, 76, 255, 0.22);
+        }
+
+        body {
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at 70% 0%,
+                    rgba(105, 32, 175, 0.20),
+                    transparent 35%
+                ),
+                var(--bg);
+
+            color: var(--text);
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+        }
+
+
+        /* =========================
+           HAMBURGER
+        ========================= */
+
+        .menu-button {
+            position: fixed;
+
+            top: 22px;
+            left: 22px;
+
+            width: 45px;
+            height: 45px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            gap: 5px;
+
+            background: rgba(13, 8, 25, 0.95);
+
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            z-index: 2000;
+        }
+
+        .menu-button span {
+            width: 20px;
+            height: 2px;
+
+            background: white;
+
+            border-radius: 5px;
+        }
+
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 270px;
+            height: 100vh;
+
+            padding: 30px 20px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #0a0613,
+                    #05030d
+                );
+
+            border-right: 1px solid var(--border);
+
+            transform: translateX(-100%);
+
+            transition: transform 0.35s ease;
+
+            z-index: 1500;
+
+            box-shadow:
+                10px 0 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+
+        /* =========================
+           LOGO
+        ========================= */
+
+        .logo {
+            margin-top: 60px;
+
+            padding: 0 15px;
+
+            margin-bottom: 55px;
+
+            font-size: 31px;
+
+            font-weight: 900;
+
+            letter-spacing: -2px;
+        }
+
+        .logo span {
+            color: var(--purple);
+
+            text-shadow:
+                0 0 10px var(--purple),
+                0 0 25px rgba(168, 76, 255, 0.5);
+        }
+
+
+        /* =========================
+           MENU
+        ========================= */
+
+        .menu-title {
+            padding: 0 15px;
+
+            margin-bottom: 12px;
+
+            color: #5f596c;
+
+            font-size: 10px;
+
+            font-weight: bold;
+
+            letter-spacing: 2px;
+        }
+
+        .menu {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 5px;
+        }
+
+        .menu a {
+            display: block;
+
+            padding: 15px;
+
+            border-radius: 10px;
+
+            color: #9993a8;
+
+            font-size: 14px;
+
+            text-decoration: none;
+
+            transition: 0.25s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            color: white;
+
+            background:
+                rgba(157, 61, 255, 0.10);
+        }
+
+        .menu a.active {
+            border:
+                1px solid
+                rgba(171, 73, 255, 0.20);
+        }
+
+
+        /* =========================
+           OVERLAY
+        ========================= */
+
+        .overlay {
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(0, 0, 0, 0.55);
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transition: 0.35s;
+
+            z-index: 1200;
+        }
+
+        .overlay.active {
+            opacity: 1;
+
+            visibility: visible;
+        }
+
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            min-height: 100vh;
+
+            max-width: 1100px;
+
+            margin: 0 auto;
+
+            padding: 35px 45px;
+        }
+
+
+        /* =========================
+           TOPBAR
+        ========================= */
+
+        .topbar {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 45px;
+
+            padding-left: 60px;
+        }
+
+        .page-title h1 {
+            margin-bottom: 7px;
+
+            font-size: 28px;
+        }
+
+        .page-title p {
+            color: var(--muted);
+
+            font-size: 13px;
+        }
+
+        .profile {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+        .profile-info {
+            text-align: right;
+        }
+
+        .profile-name {
+            font-size: 12px;
+
+            font-weight: bold;
+        }
+
+        .profile-status {
+            margin-top: 3px;
+
+            color: #777184;
+
+            font-size: 10px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+
+            border-radius: 50%;
+
+            border:
+                1px solid var(--purple);
+
+            background: #140a24;
+
+            box-shadow:
+                0 0 15px
+                rgba(168, 76, 255, 0.3);
+        }
+
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            position: relative;
+
+            overflow: hidden;
+
+            padding: 40px;
+
+            margin-bottom: 35px;
+
+            border-radius: 18px;
+
+            border:
+                1px solid
+                rgba(165, 67, 255, 0.30);
+
+            background:
+                radial-gradient(
+                    circle at 85% 50%,
+                    rgba(116, 42, 206, 0.20),
+                    transparent 38%
+                ),
+                linear-gradient(
+                    135deg,
+                    rgba(32, 13, 55, 0.85),
+                    rgba(9, 5, 20, 0.92)
+                );
+        }
+
+        .hero-label {
+            margin-bottom: 12px;
+
+            color: var(--purple-light);
+
+            font-size: 10px;
+
+            font-weight: bold;
+
+            letter-spacing: 3px;
+        }
+
+        .hero h2 {
+            margin-bottom: 10px;
+
+            font-size: 34px;
+        }
+
+        .hero p {
+            max-width: 650px;
+
+            color: #928b9f;
+
+            font-size: 13px;
+
+            line-height: 1.7;
+        }
+
+
+        /* =========================
+           SELECTION
+        ========================= */
+
+        .selection-title {
+            margin-bottom: 18px;
+
+            font-size: 17px;
+        }
+
+        .selection-description {
+            margin-bottom: 22px;
+
+            color: #777184;
+
+            font-size: 12px;
+        }
+
+
+        /* =========================
+           SCHOOL TYPE
+        ========================= */
+
+        .school-types {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 16px;
+
+            margin-bottom: 35px;
+        }
+
+        .school-type {
+            padding: 24px;
+
+            min-height: 130px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 15px;
+
+            background:
+                rgba(11, 7, 24, 0.80);
+
+            cursor: pointer;
+
+            transition: 0.25s;
+        }
+
+        .school-type:hover {
+            transform:
+                translateY(-3px);
+
+            border-color:
+                rgba(168, 76, 255, 0.50);
+        }
+
+        .school-type.selected {
+            border-color:
+                var(--purple);
+
+            background:
+                rgba(168, 76, 255, 0.10);
+
+            box-shadow:
+                0 0 25px
+                rgba(168, 76, 255, 0.08);
+        }
+
+        .school-number {
+            margin-bottom: 25px;
+
+            color: #625c6e;
+
+            font-size: 10px;
+        }
+
+        .school-type h3 {
+            margin-bottom: 7px;
+
+            font-size: 16px;
+        }
+
+        .school-type p {
+            color: #716b7d;
+
+            font-size: 11px;
+        }
+
+
+        /* =========================
+           YEARS
+        ========================= */
+
+        .years-section {
+            display: none;
+
+            animation:
+                fadeIn 0.3s ease;
+        }
+
+        .years-section.visible {
+            display: block;
+        }
+
+        .years-title {
+            margin-bottom: 18px;
+
+            font-size: 16px;
+        }
+
+        .years {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 12px;
+        }
+
+        .year-button {
+            min-height: 65px;
+
+            padding: 15px;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 11px;
+
+            color: #9993a8;
+
+            background:
+                rgba(11, 7, 24, 0.75);
+
+            font-size: 13px;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+        }
+
+        .year-button:hover {
+            color: white;
+
+            border-color:
+                rgba(168, 76, 255, 0.50);
+
+            background:
+                rgba(168, 76, 255, 0.10);
+        }
+
+
+        /* =========================
+           INFO
+        ========================= */
+
+        .info {
+            margin-top: 30px;
+
+            padding: 20px;
+
+            border-radius: 12px;
+
+            border:
+                1px solid
+                rgba(168, 76, 255, 0.12);
+
+            background:
+                rgba(11, 7, 24, 0.50);
+
+            color: #686273;
+
+            font-size: 11px;
+
+            line-height: 1.6;
+        }
+
+
+        /* =========================
+           ANIMATION
+        ========================= */
+
+        @keyframes fadeIn {
+
+            from {
+                opacity: 0;
+
+                transform:
+                    translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+            }
+
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 800px) {
+
+            .school-types {
+                grid-template-columns:
+                    1fr;
+            }
+
+            .years {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .main {
+                padding:
+                    25px 18px;
+            }
+
+            .topbar {
+                padding-left: 55px;
+            }
+
+            .profile {
+                display: none;
+            }
+
+            .hero {
+                padding: 25px;
+            }
+
+            .hero h2 {
+                font-size: 27px;
+            }
+
+            .years {
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         HAMBURGER
+    ========================= -->
+
+    <button
+        class="menu-button"
+        id="menuButton"
+        aria-label="Otvoriť menu"
+    >
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+        <div class="logo">
+            Way<span>Go</span>
+        </div>
+
+        <div class="menu-title">
+            MENU
+        </div>
+
+        <nav class="menu">
+
+            <a href="home.html">
+                Dashboard
+            </a>
+
+            <a href="osobny-rozvoj.html">
+                Osobný rozvoj
+            </a>
+
+            <a href="sport.html">
+                Šport
+            </a>
+
+            <a
+                href="ucenie.html"
+                class="active"
+            >
+                Učenie
+            </a>
+
+            <a href="hobby.html">
+                Hobby
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- =========================
+         OVERLAY
+    ========================= -->
+
+    <div
+        class="overlay"
+        id="overlay"
+    ></div>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <main class="main">
+
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="page-title">
+
+                <h1>
+                    Učenie
+                </h1>
+
+            </div>
+
+
+            <div class="profile">
+
+                <div class="profile-info">
+
+                    <div class="profile-name">
+                        -
+                    </div>
+
+                    <div class="profile-status">
+                        Aktívny
+                    </div>
+
+                </div>
+
+                <div class="avatar"></div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             HERO
+        ========================= -->
+
+        
+
+        <!-- =========================
+             SCHOOL SELECTION
+        ========================= -->
+
+        <section>
+
+            <h2 class="selection-title">
+                Typ školy
+            </h2>
+
+            <p class="selection-description">
+                Vyber školu, ktorú navštevuješ.
+            </p>
+
+
+            <div class="school-types">
+
+
+                <!-- ZÁKLADNÁ -->
+
+                <div
+                    class="school-type"
+                    data-school="zs"
+                >
+
+                    <div class="school-number">
+                        01
+                    </div>
+
+                    <h3>
+                        Základná škola
+                    </h3>
+
+                    <p>
+                        1. až 9. ročník
+                    </p>
+
+                </div>
+
+
+                <!-- STREDNÁ -->
+
+                <div
+                    class="school-type"
+                    data-school="ss"
+                >
+
+                    <div class="school-number">
+                        02
+                    </div>
+
+                    <h3>
+                        Stredná škola
+                    </h3>
+
+                    <p>
+                        Vyber svoj ročník
+                    </p>
+
+                </div>
+
+
+                <!-- VYSOKÁ -->
+
+                <div
+                    class="school-type"
+                    data-school="vs"
+                >
+
+                    <div class="school-number">
+                        03
+                    </div>
+
+                    <h3>
+                        Vysoká škola
+                    </h3>
+
+                    <p>
+                        Vyber svoj ročník
+                    </p>
+
+                </div>
+                <div
+                    class="school-type"
+                    data-school="pp"
+                >
+
+                    <div class="school-number">
+                        04
+                    </div>
+
+                    <h3>
+                        Prijmačky
+                    </h3>
+
+                    <p>
+                        vyber svoje prijmačky
+                    </p>
+
+                </div>
+
+
+
+            </div>
+
+
+            <!-- =========================
+                 YEARS
+            ========================= -->
+
+            <div
+                class="years-section"
+                id="yearsSection"
+            >
+
+                <h2
+                    class="years-title"
+                    id="yearsTitle"
+                >
+                    Ročník
+                </h2>
+
+
+                <div
+                    class="years"
+                    id="years"
+                ></div>
+
+
+                <div class="info">
+
+                    Po kliknutí na ročník budeš
+                    presunutý priamo na stránku
+                    svojho ročníka.
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <script>
+
+
+        /* =========================
+           MENU
+        ========================= */
+
+        const menuButton =
+            document.getElementById(
+                "menuButton"
+            );
+
+        const sidebar =
+            document.getElementById(
+                "sidebar"
+            );
+
+        const overlay =
+            document.getElementById(
+                "overlay"
+            );
+
+
+        menuButton.addEventListener(
+            "click",
+            () => {
+
+                sidebar.classList.toggle(
+                    "open"
+                );
+
+                overlay.classList.toggle(
+                    "active"
+                );
+
+            }
+        );
+
+
+        overlay.addEventListener(
+            "click",
+            () => {
+
+                sidebar.classList.remove(
+                    "open"
+                );
+
+                overlay.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+
+        /* =========================
+           ELEMENTY
+        ========================= */
+
+        const schoolCards =
+            document.querySelectorAll(
+                ".school-type"
+            );
+
+        const yearsSection =
+            document.getElementById(
+                "yearsSection"
+            );
+
+        const yearsTitle =
+            document.getElementById(
+                "yearsTitle"
+            );
+
+        const yearsContainer =
+            document.getElementById(
+                "years"
+            );
+
+
+        /* =========================
+           ROČNÍKY
+        ========================= */
+
+        const schoolYears = {
+
+            zs: [
+                {
+                    name: "1. ročník",
+                    url: "1zs.html"
+                },
+                {
+                    name: "2. ročník",
+                    url: "2zs.html"
+                },
+                {
+                    name: "3. ročník",
+                    url: "3zs.html"
+                },
+                {
+                    name: "4. ročník",
+                    url: "4zs.html"
+                },
+                {
+                    name: "5. ročník",
+                    url: "5zs.html"
+                },
+                {
+                    name: "6. ročník",
+                    url: "6zs.html"
+                },
+                {
+                    name: "7. ročník",
+                    url: "7zs.html"
+                },
+                {
+                    name: "8. ročník",
+                    url: "8zs.html"
+                },
+                {
+                    name: "9. ročník",
+                    url: "9zs.html"
+                }
+            ],
+
+            ss: [
+                {
+                    name: "1. ročník",
+                    url: "#"
+                },
+                {
+                    name: "2. ročník",
+                    url: "#"
+                },
+                {
+                    name: "3. ročník",
+                    url: "#"
+                },
+                {
+                    name: "4. ročník",
+                    url: "#"
+                },
+                {
+                    name: "5. ročník",
+                    url: "#"
+                }
+            ],
+
+            vs: [
+                {
+                    name: "1. ročník",
+                    url: "#"
+                },
+                {
+                    name: "2. ročník",
+                    url: "#"
+                },
+                {
+                    name: "3. ročník",
+                    url: "#"
+                },
+                {
+                    name: "4. ročník",
+                    url: "#"
+                },
+                {
+                    name: "5. ročník",
+                    url: "#"
+                },
+                {
+                    name: "6. ročník",
+                    url: "#"
+                }
+            ],
+pp: [
+                {
+                    name: "gymnázium-bilingvál",
+                    url: "#"
+                },
+                {
+                    name: "gymnázium",
+                    url: "#"
+                },
+                {
+                    name: "stredná odborná škola",
+                    url: "#"
+                },
+                {
+                    name: "vysoká škola-medicína",
+                    url: "#"
+                },
+                {
+                    name: "vysoká škola-pravo",
+                    url: "#"
+                },
+                {
+                    name: "vysoká škola-technická",
+                    url: "#"
+                }
+            ]
+        };
+
+
+        /* =========================
+           VÝBER ŠKOLY
+        ========================= */
+
+        schoolCards.forEach(
+            card => {
+
+                card.addEventListener(
+                    "click",
+                    () => {
+
+                        schoolCards.forEach(
+                            item => {
+
+                                item.classList.remove(
+                                    "selected"
+                                );
+
+                            }
+                        );
+
+
+                        card.classList.add(
+                            "selected"
+                        );
+
+
+                        const school =
+                            card.dataset.school;
+
+
+                        showYears(
+                            school
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =========================
+           ZOBRAZENIE ROČNÍKOV
+        ========================= */
+
+        function showYears(
+            school
+        ) {
+
+            yearsContainer.innerHTML =
+                "";
+
+
+            const years =
+                schoolYears[school];
+
+
+            if (!years) {
+                return;
+            }
+
+
+            if (school === "zs") {
+
+                yearsTitle.textContent =
+                    "Ročník základnej školy";
+
+            }
+
+            else if (school === "ss") {
+
+                yearsTitle.textContent =
+                    "Ročník strednej školy";
+
+            }
+
+            else if (school === "vs") {
+
+                yearsTitle.textContent =
+                    "Ročník vysokej školy";
+
+            }
+
+
+            years.forEach(
+                year => {
+
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    button.className =
+                        "year-button";
+
+
+                    button.textContent =
+                        year.name;
+
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            /*
+                             * Uložíme vybraný
+                             * typ školy a ročník.
+                             */
+
+                            localStorage.setItem(
+                                "waygo_school",
+                                school
+                            );
+
+                            localStorage.setItem(
+                                "waygo_year",
+                                year.name
+                            );
+
+
+                            /*
+                             * Presun na konkrétnu
+                             * stránku ročníka.
+                             */
+
+                            if (
+                                year.url !== "#"
+                            ) {
+
+                                window.location.href =
+                                    year.url;
+
+                            }
+
+                        }
+                    );
+
+
+                    yearsContainer.appendChild(
+                        button
+                    );
+
+                }
+            );
+
+
+            yearsSection.classList.add(
+                "visible"
+            );
+
+
+            /*
+             * Posunieme stránku
+             * na výber ročníka.
+             */
+
+            setTimeout(
+                () => {
+
+                    yearsSection.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                },
+                100
+            );
+
+        }
+
+
+    </script>
+
+</body>
+</html>
