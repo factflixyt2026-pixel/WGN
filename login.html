@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>WayGo — Prihlásenie</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #05030d;
+            --card: #0d0918;
+            --purple: #a84cff;
+            --purple-light: #d18aff;
+            --text: #ffffff;
+            --muted: #8d879b;
+            --border: rgba(168, 76, 255, 0.25);
+            --error: #ff5c7a;
+        }
+
+        body {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(105, 32, 175, 0.25),
+                    transparent 40%
+                ),
+                var(--bg);
+
+            color: var(--text);
+
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* =========================
+           CARD
+        ========================= */
+
+        .auth-container {
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .auth-card {
+            padding: 40px;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(19, 10, 34, 0.96),
+                    rgba(8, 5, 16, 0.98)
+                );
+
+            border: 1px solid var(--border);
+
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, 0.5),
+                0 0 50px rgba(130, 40, 220, 0.08);
+        }
+
+        /* =========================
+           LOGO
+        ========================= */
+
+        .logo {
+            margin-bottom: 35px;
+
+            text-align: center;
+
+            font-size: 38px;
+
+            font-weight: 900;
+
+            letter-spacing: -2px;
+        }
+
+        .logo span {
+            color: var(--purple);
+
+            text-shadow:
+                0 0 10px var(--purple),
+                0 0 25px rgba(168, 76, 255, 0.5);
+        }
+
+        /* =========================
+           TITLE
+        ========================= */
+
+        .title {
+            text-align: center;
+
+            margin-bottom: 30px;
+        }
+
+        .title h1 {
+            margin-bottom: 8px;
+
+            font-size: 25px;
+        }
+
+        .title p {
+            color: var(--muted);
+
+            font-size: 13px;
+        }
+
+        /* =========================
+           TABS
+        ========================= */
+
+        .tabs {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 5px;
+
+            padding: 4px;
+
+            margin-bottom: 25px;
+
+            border-radius: 10px;
+
+            background: #090612;
+        }
+
+        .tab {
+            padding: 11px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: transparent;
+
+            color: #777184;
+
+            font-size: 12px;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+        }
+
+        .tab.active {
+            color: white;
+
+            background:
+                rgba(168, 76, 255, 0.16);
+
+            box-shadow:
+                inset 0 0 0 1px rgba(168, 76, 255, 0.18);
+        }
+
+        /* =========================
+           FORM
+        ========================= */
+
+        .form {
+            display: none;
+        }
+
+        .form.active {
+            display: block;
+        }
+
+        .field {
+            margin-bottom: 17px;
+        }
+
+        .field label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #aaa3b5;
+
+            font-size: 11px;
+        }
+
+        .field input {
+            width: 100%;
+
+            padding: 13px 14px;
+
+            border: 1px solid rgba(168, 76, 255, 0.18);
+
+            border-radius: 9px;
+
+            outline: none;
+
+            background: #080510;
+
+            color: white;
+
+            font-size: 13px;
+
+            transition: 0.25s;
+        }
+
+        .field input::placeholder {
+            color: #514b5c;
+        }
+
+        .field input:focus {
+            border-color: var(--purple);
+
+            box-shadow:
+                0 0 0 3px rgba(168, 76, 255, 0.08);
+        }
+
+        /* =========================
+           BUTTON
+        ========================= */
+
+        .submit-button {
+            width: 100%;
+
+            margin-top: 8px;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #842bdf,
+                    #ad51ff
+                );
+
+            color: white;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 0 25px rgba(168, 76, 255, 0.18);
+
+            transition: 0.25s;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 0 30px rgba(168, 76, 255, 0.3);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+            transform: none;
+        }
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        .message {
+            display: none;
+
+            margin-bottom: 18px;
+
+            padding: 11px 13px;
+
+            border-radius: 8px;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.error {
+            color: #ff8ca2;
+
+            background:
+                rgba(255, 70, 100, 0.08);
+
+            border:
+                1px solid rgba(255, 70, 100, 0.2);
+        }
+
+        .message.success {
+            color: #b98aff;
+
+            background:
+                rgba(168, 76, 255, 0.08);
+
+            border:
+                1px solid rgba(168, 76, 255, 0.2);
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 500px) {
+
+            .auth-card {
+                padding: 30px 22px;
+            }
+
+            .logo {
+                font-size: 34px;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <div class="auth-container">
+
+        <div class="auth-card">
+
+            <!-- LOGO -->
+
+            <div class="logo">
+                Way<span>Go</span>
+            </div>
+
+
+            <!-- TITLE -->
+
+            <div class="title">
+
+                <h1 id="title">
+                    Vitaj späť
+                </h1>
+
+                <p id="subtitle">
+                    Prihlás sa a pokračuj vo svojej ceste.
+                </p>
+
+            </div>
+
+
+            <!-- TABS -->
+
+            <div class="tabs">
+
+                <button
+                    class="tab active"
+                    id="loginTab"
+                    type="button"
+                >
+                    Prihlásenie
+                </button>
+
+                <button
+                    class="tab"
+                    id="registerTab"
+                    type="button"
+                >
+                    Registrácia
+                </button>
+
+            </div>
+
+
+            <!-- MESSAGE -->
+
+            <div
+                class="message"
+                id="message"
+            ></div>
+
+
+            <!-- =========================
+                 LOGIN
+            ========================== -->
+
+            <form
+                class="form active"
+                id="loginForm"
+            >
+
+                <div class="field">
+
+                    <label for="loginEmail">
+                        Email
+                    </label>
+
+                    <input
+                        id="loginEmail"
+                        type="email"
+                        placeholder="tvoj@email.sk"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="loginPassword">
+                        Heslo
+                    </label>
+
+                    <input
+                        id="loginPassword"
+                        type="password"
+                        placeholder="Tvoje heslo"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    class="submit-button"
+                    id="loginButton"
+                    type="submit"
+                >
+                    Prihlásiť sa
+                </button>
+
+            </form>
+
+
+            <!-- =========================
+                 REGISTER
+            ========================== -->
+
+            <form
+                class="form"
+                id="registerForm"
+            >
+
+                <div class="field">
+
+                    <label for="registerUsername">
+                        Meno
+                    </label>
+
+                    <input
+                        id="registerUsername"
+                        type="text"
+                        placeholder="Tvoje meno"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="registerEmail">
+                        Email
+                    </label>
+
+                    <input
+                        id="registerEmail"
+                        type="email"
+                        placeholder="tvoj@email.sk"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="registerPassword">
+                        Heslo
+                    </label>
+
+                    <input
+                        id="registerPassword"
+                        type="password"
+                        placeholder="Minimálne 6 znakov"
+                        minlength="6"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    class="submit-button"
+                    id="registerButton"
+                    type="submit"
+                >
+                    Vytvoriť účet
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        /* =====================================
+           SUPABASE
+        ===================================== */
+
+        const SUPABASE_URL =
+            "https://ghehgjjnghulonnkfpdw.supabase.co";
+
+        const SUPABASE_KEY =
+            "SEM_VLOZ_TVOJ_SB_PUBLISHABLE_KLUC";
+
+
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+
+
+        /* =====================================
+           ELEMENTS
+        ===================================== */
+
+        const loginTab =
+            document.getElementById("loginTab");
+
+        const registerTab =
+            document.getElementById("registerTab");
+
+        const loginForm =
+            document.getElementById("loginForm");
+
+        const registerForm =
+            document.getElementById("registerForm");
+
+        const title =
+            document.getElementById("title");
+
+        const subtitle =
+            document.getElementById("subtitle");
+
+        const message =
+            document.getElementById("message");
+
+
+        /* =====================================
+           MESSAGE
+        ===================================== */
+
+        function showMessage(
+            text,
+            type = "error"
+        ) {
+
+            message.textContent = text;
+
+            message.className =
+                "message show " + type;
+
+        }
+
+
+        function hideMessage() {
+
+            message.className =
+                "message";
+
+            message.textContent = "";
+
+        }
+
+
+        /* =====================================
+           SWITCH FORM
+        ===================================== */
+
+        loginTab.addEventListener(
+            "click",
+            () => {
+
+                loginTab.classList.add("active");
+
+                registerTab.classList.remove("active");
+
+                loginForm.classList.add("active");
+
+                registerForm.classList.remove("active");
+
+                title.textContent =
+                    "Vitaj späť";
+
+                subtitle.textContent =
+                    "Prihlás sa a pokračuj vo svojej ceste.";
+
+                hideMessage();
+
+            }
+        );
+
+
+        registerTab.addEventListener(
+            "click",
+            () => {
+
+                registerTab.classList.add("active");
+
+                loginTab.classList.remove("active");
+
+                registerForm.classList.add("active");
+
+                loginForm.classList.remove("active");
+
+                title.textContent =
+                    "Vytvor si účet";
+
+                subtitle.textContent =
+                    "Začni svoju cestu s WayGo.";
+
+                hideMessage();
+
+            }
+        );
+
+
+        /* =====================================
+           LOGIN
+        ===================================== */
+
+        loginForm.addEventListener(
+            "submit",
+            async (event) => {
+
+                event.preventDefault();
+
+                hideMessage();
+
+
+                const email =
+                    document.getElementById(
+                        "loginEmail"
+                    ).value.trim();
+
+
+                const password =
+                    document.getElementById(
+                        "loginPassword"
+                    ).value;
+
+
+                const button =
+                    document.getElementById(
+                        "loginButton"
+                    );
+
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Prihlasovanie...";
+
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+
+                if (error) {
+
+                    showMessage(
+                        "Nesprávny email alebo heslo."
+                    );
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Prihlásiť sa";
+
+                    return;
+                }
+
+
+                if (data.session) {
+
+                    window.location.href =
+                        "home.html";
+
+                }
+
+            }
+        );
+
+
+        /* =====================================
+           REGISTER
+        ===================================== */
+
+        registerForm.addEventListener(
+            "submit",
+            async (event) => {
+
+                event.preventDefault();
+
+                hideMessage();
+
+
+                const username =
+                    document.getElementById(
+                        "registerUsername"
+                    ).value.trim();
+
+
+                const email =
+                    document.getElementById(
+                        "registerEmail"
+                    ).value.trim();
+
+
+                const password =
+                    document.getElementById(
+                        "registerPassword"
+                    ).value;
+
+
+                const button =
+                    document.getElementById(
+                        "registerButton"
+                    );
+
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Vytváranie účtu...";
+
+
+                /* =========================
+                   CREATE AUTH USER
+                ========================== */
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient.auth.signUp({
+                        email: email,
+                        password: password
+                    });
+
+
+                if (error) {
+
+                    showMessage(
+                        error.message
+                    );
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Vytvoriť účet";
+
+                    return;
+                }
+
+
+                /* =========================
+                   CREATE PROFILE
+                ========================== */
+
+                if (data.user) {
+
+                    const {
+                        error: profileError
+                    } =
+                        await supabaseClient
+                            .from("profiles")
+                            .insert({
+                                id: data.user.id,
+                                username: username,
+                                xp: 0,
+                                streak: 0
+                            });
+
+
+                    if (profileError) {
+
+                        console.error(
+                            "Profile error:",
+                            profileError
+                        );
+
+                    }
+
+                }
+
+
+                /*
+                 * Ak Supabase vyžaduje potvrdenie emailu,
+                 * používateľ dostane túto správu.
+                 */
+
+                if (!data.session) {
+
+                    showMessage(
+                        "Účet bol vytvorený. Skontroluj svoj email a potvrď registráciu.",
+                        "success"
+                    );
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Vytvoriť účet";
+
+                    return;
+                }
+
+
+                /* =========================
+                   REDIRECT
+                ========================== */
+
+                window.location.href =
+                    "home.html";
+
+            }
+        );
+
+
+        /* =====================================
+           CHECK EXISTING SESSION
+        ===================================== */
+
+        async function checkSession() {
+
+            const {
+                data: {
+                    session
+                }
+            } =
+                await supabaseClient.auth.getSession();
+
+
+            if (session) {
+
+                window.location.href =
+                    "home.html";
+
+            }
+
+        }
+
+
+        checkSession();
+
+    </script>
+
+</body>
+</html>
