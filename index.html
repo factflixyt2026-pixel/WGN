@@ -4,610 +4,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>WayGO</title>
+    <title>WayGo</title>
 
     <style>
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        html,
         body {
             width: 100%;
-            height: 100%;
+            height: 100vh;
+            background: #050505;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
-        }
-
-        body {
-            background:
-                radial-gradient(
-                    circle at 50% 50%,
-                    #35106b 0%,
-                    #19052f 38%,
-                    #080013 72%,
-                    #020005 100%
-                );
-
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        /* =====================================
-           VESMÍR
-        ===================================== */
+        /* Farebné glow gule */
+        .glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.5;
+            animation: moveGlow 5s infinite alternate ease-in-out;
+        }
 
-        .space {
+        .glow1 {
+            background: #7c3cff;
+            top: -100px;
+            left: -100px;
+        }
+
+        .glow2 {
+            background: #00e5ff;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 1s;
+        }
+
+        .glow3 {
+            background: #ff2bd6;
+            top: 45%;
+            left: 45%;
+            width: 180px;
+            height: 180px;
+            opacity: 0.25;
+        }
+
+        /* Logo */
+        .logo-container {
             position: relative;
-            width: 100vw;
-            height: 100vh;
+            z-index: 2;
+            text-align: center;
+            animation: logoAppear 1.2s cubic-bezier(.17,.67,.3,1.3);
+        }
+
+        .logo {
+            font-size: clamp(55px, 15vw, 100px);
+            font-weight: 900;
+            letter-spacing: -5px;
+
+            background: linear-gradient(
+                90deg,
+                #ffffff,
+                #b66cff,
+                #00e5ff,
+                #ffffff
+            );
+
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+
+            animation:
+                gradientMove 2s linear infinite,
+                pulse 1.8s ease-in-out infinite;
+
+            filter:
+                drop-shadow(0 0 10px #7c3cff)
+                drop-shadow(0 0 30px rgba(0,229,255,.5));
+        }
+
+        .tagline {
+            margin-top: 15px;
+            color: rgba(255,255,255,.65);
+            font-size: 14px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            animation: fadeUp 1.5s ease;
+        }
+
+        /* Loading */
+        .loading {
+            position: absolute;
+            bottom: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: rgba(255,255,255,.12);
+            border-radius: 20px;
             overflow: hidden;
         }
 
-        /* Fialová hmlovina */
+        .loading::after {
+            content: "";
+            display: block;
+            width: 35%;
+            height: 100%;
+            border-radius: 20px;
 
-        .nebula {
-            position: absolute;
+            background: linear-gradient(
+                90deg,
+                #7c3cff,
+                #00e5ff,
+                #ff2bd6
+            );
 
-            width: 750px;
-            height: 750px;
+            box-shadow: 0 0 15px #7c3cff;
 
-            left: 50%;
-            top: 50%;
-
-            transform: translate(-50%, -50%);
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(168, 85, 247, 0.22),
-                    rgba(126, 34, 206, 0.10) 35%,
-                    transparent 70%
-                );
-
-            filter: blur(45px);
+            animation: loading 3s linear forwards;
         }
 
-        /* =====================================
-           HVIEZDY
-        ===================================== */
+        /* Animácie */
 
-        #stars {
-            position: absolute;
-            inset: 0;
-        }
-
-        .star {
-            position: absolute;
-
-            background: white;
-
-            border-radius: 50%;
-
-            box-shadow:
-                0 0 5px white,
-                0 0 10px rgba(216, 180, 254, 0.8);
-
-            opacity: var(--opacity);
-
-            animation:
-                twinkle
-                var(--duration)
-                ease-in-out
-                infinite alternate;
-        }
-
-        @keyframes twinkle {
-
-            from {
-                transform: scale(0.6);
-            }
-
-            to {
-                transform: scale(1.4);
-            }
-        }
-
-        /* =====================================
-           GULIČKA
-        ===================================== */
-
-        .meteor {
-
-            position: absolute;
-
-            /*
-                ZAČIATOK:
-                pravý horný roh
-            */
-
-            left: 108vw;
-            top: -8vh;
-
-            width: 14px;
-            height: 14px;
-
-            border-radius: 50%;
-
-            background: white;
-
-            opacity: 0;
-
-            z-index: 20;
-
-            box-shadow:
-                0 0 10px white,
-                0 0 25px white,
-                0 0 45px #f3e8ff,
-                0 0 70px #c084fc,
-                0 0 110px #9333ea;
-
-            animation:
-                meteorMove
-                3s
-                cubic-bezier(0.18, 0.75, 0.25, 1)
-                forwards;
-
-            animation-delay: 1.5s;
-        }
-
-        /*
-            GULIČKA LETÍ
-            ↙️
-            z pravého horného rohu
-            do stredu
-        */
-
-        @keyframes meteorMove {
-
+        @keyframes logoAppear {
             0% {
-
-                left: 108vw;
-                top: -8vh;
-
                 opacity: 0;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(0.15);
-            }
-
-            8% {
-                opacity: 1;
-            }
-
-            30% {
-
-                left: 88vw;
-                top: 14vh;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(0.4);
-            }
-
-            50% {
-
-                left: 73vw;
-                top: 30vh;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(0.9);
+                transform: scale(.5) rotate(-5deg);
+                filter: blur(15px);
             }
 
             70% {
-
-                left: 61vw;
-                top: 43vh;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(2);
-            }
-
-            88% {
-
-                left: 53vw;
-                top: 51vh;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(5);
-            }
-
-            /*
-                DOPAD
-            */
-
-            100% {
-
-                left: 50vw;
-                top: 53vh;
-
-                opacity: 0;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(16);
-            }
-        }
-
-        /* =====================================
-           ZÁBLESK
-        ===================================== */
-
-        .impact {
-
-            position: absolute;
-
-            left: 50%;
-            top: 53%;
-
-            width: 15px;
-            height: 15px;
-
-            border-radius: 50%;
-
-            background: white;
-
-            opacity: 0;
-
-            z-index: 15;
-
-            transform:
-                translate(-50%, -50%)
-                scale(0);
-
-            box-shadow:
-                0 0 20px white,
-                0 0 50px #f3e8ff,
-                0 0 100px #c084fc,
-                0 0 180px #9333ea;
-
-            animation:
-                impact
-                1s
-                ease-out
-                forwards;
-
-            animation-delay: 4.35s;
-        }
-
-        @keyframes impact {
-
-            0% {
-
-                opacity: 1;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(0);
-            }
-
-            35% {
-
-                opacity: 0.9;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(7);
+                transform: scale(1.08) rotate(1deg);
             }
 
             100% {
-
-                opacity: 0;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(35);
-            }
-        }
-
-        /* =====================================
-           ISKRY
-        ===================================== */
-
-        .spark {
-
-            position: absolute;
-
-            left: 50%;
-            top: 53%;
-
-            width: 5px;
-            height: 5px;
-
-            border-radius: 50%;
-
-            background: white;
-
-            box-shadow:
-                0 0 8px white,
-                0 0 18px #c084fc;
-
-            opacity: 0;
-
-            z-index: 16;
-
-            --x: 0px;
-            --y: 0px;
-
-            animation:
-                sparkFly
-                1.2s
-                ease-out
-                forwards;
-
-            animation-delay: 4.35s;
-        }
-
-        @keyframes sparkFly {
-
-            0% {
-
                 opacity: 1;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(1);
-            }
-
-            100% {
-
-                opacity: 0;
-
-                transform:
-                    translate(
-                        calc(-50% + var(--x)),
-                        calc(-50% + var(--y))
-                    )
-                    scale(0.1);
-            }
-        }
-
-        /* =====================================
-           WAYGO
-        ===================================== */
-
-        .logo {
-
-            position: absolute;
-
-            left: 50%;
-            top: 53%;
-
-            color: white;
-
-            font-size:
-                clamp(55px, 13vw, 140px);
-
-            font-weight: 900;
-
-            letter-spacing: 10px;
-
-            opacity: 0;
-
-            z-index: 30;
-
-            transform:
-                translate(-50%, -50%)
-                scale(0.1);
-
-            text-shadow:
-                0 0 10px white,
-                0 0 20px #f3e8ff,
-                0 0 40px #d8b4fe,
-                0 0 70px #a855f7,
-                0 0 110px #7e22ce,
-                0 0 160px #581c87;
-
-            animation:
-                logoAppear
-                1.3s
-                cubic-bezier(0.17, 0.67, 0.32, 1.4)
-                forwards;
-
-            animation-delay: 4.65s;
-        }
-
-        @keyframes logoAppear {
-
-            0% {
-
-                opacity: 0;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(0.1);
-
-                filter: blur(20px);
-            }
-
-            40% {
-
-                opacity: 1;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(1.2);
-
-                filter: blur(0);
-            }
-
-            65% {
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(0.96);
-            }
-
-            100% {
-
-                opacity: 1;
-
-                transform:
-                    translate(-50%, -50%)
-                    scale(1);
-
+                transform: scale(1) rotate(0);
                 filter: blur(0);
             }
         }
 
-        /* =====================================
-           MOBIL
-        ===================================== */
-
-        @media (max-width: 600px) {
-
-            .logo {
-                letter-spacing: 5px;
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% center;
             }
 
+            100% {
+                background-position: 300% center;
+            }
         }
 
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.04);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes loading {
+            from {
+                width: 0%;
+            }
+
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes moveGlow {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(80px, 50px) scale(1.3);
+            }
+        }
     </style>
 </head>
 
-
 <body>
 
-    <div class="space">
+    <div class="glow glow1"></div>
+    <div class="glow glow2"></div>
+    <div class="glow glow3"></div>
 
-        <!-- Fialová hmlovina -->
-        <div class="nebula"></div>
-
-        <!-- Náhodné hviezdy -->
-        <div id="stars"></div>
-
-        <!-- IBA GULIČKA -->
-        <div class="meteor"></div>
-
-        <!-- Záblesk -->
-        <div class="impact"></div>
-
-        <!-- WayGO -->
-        <div class="logo">
-            WayGO
-        </div>
-
+    <div class="logo-container">
+        <div class="logo">WayGo</div>
+        <div class="tagline">Learn. Scroll. Grow.</div>
     </div>
 
+    <div class="loading"></div>
 
     <script>
-
-        /* =====================================
-           VYTVORENIE HVIEZD
-        ===================================== */
-
-        const starsContainer =
-            document.getElementById("stars");
-
-        const numberOfStars = 220;
-
-        for (let i = 0; i < numberOfStars; i++) {
-
-            const star =
-                document.createElement("div");
-
-            star.classList.add("star");
-
-            star.style.left =
-                Math.random() * 100 + "%";
-
-            star.style.top =
-                Math.random() * 100 + "%";
-
-            const size =
-                Math.random() * 2.5 + 1;
-
-            star.style.width =
-                size + "px";
-
-            star.style.height =
-                size + "px";
-
-            star.style.setProperty(
-                "--opacity",
-                Math.random() * 0.7 + 0.3
-            );
-
-            star.style.setProperty(
-                "--duration",
-                Math.random() * 3 + 1.5 + "s"
-            );
-
-            star.style.animationDelay =
-                Math.random() * 4 + "s";
-
-            starsContainer.appendChild(star);
-        }
-
-
-        /* =====================================
-           ISKRY PO DOPADE
-        ===================================== */
-
-        const space =
-            document.querySelector(".space");
-
-        for (let i = 0; i < 40; i++) {
-
-            const spark =
-                document.createElement("div");
-
-            spark.classList.add("spark");
-
-            const angle =
-                Math.random() * Math.PI * 2;
-
-            const distance =
-                Math.random() * 180 + 60;
-
-            const x =
-                Math.cos(angle) * distance;
-
-            const y =
-                Math.sin(angle) * distance;
-
-            spark.style.setProperty(
-                "--x",
-                x + "px"
-            );
-
-            spark.style.setProperty(
-                "--y",
-                y + "px"
-            );
-
-            spark.style.animationDelay =
-                4.35 +
-                Math.random() * 0.2 +
-                "s";
-
-            space.appendChild(spark);
-        }
-
-
-        /* =====================================
-           PRESMEROVANIE
-        ===================================== */
-
-        /*
-            1.5 s → gulička vyletí
-            4.5 s → dopad
-            4.65 s → WayGO
-            7.65 s → main.html
-        */
-
         setTimeout(() => {
-
-            window.location.href =
-                "main.html";
-
-        }, 7650);
-
+            window.location.href = "main.html";
+        }, 3000);
     </script>
 
 </body>
