@@ -2,98 +2,143 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>WayGo</title>
 
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
+
+        @import url(
+            'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap'
+        );
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --purple: #8b5cf6;
+            --purple-light: #a78bfa;
+            --blue: #38bdf8;
+            --pink: #ec4899;
+        }
+
+        html,
         body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+
             min-height: 100vh;
-            background: #050505;
+
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(139, 92, 246, .20),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 85% 90%,
+                    rgba(56, 189, 248, .12),
+                    transparent 30%
+                ),
+                #050505;
+
             color: white;
-            font-family: Arial, Helvetica, sans-serif;
+
+            font-family: 'Inter', sans-serif;
+
             overflow-x: hidden;
         }
 
+
         /* =========================
-           BACKGROUND GLOW
+           BACKGROUND
         ========================= */
 
         .glow {
             position: fixed;
+
+            width: 420px;
+            height: 420px;
+
             border-radius: 50%;
-            filter: blur(110px);
+
+            filter: blur(130px);
+
             pointer-events: none;
-            z-index: 0;
+
+            z-index: -1;
+
+            opacity: .18;
         }
 
-        .glow1 {
-            width: 350px;
-            height: 350px;
-            background: #7c3cff;
-            top: -150px;
-            left: -120px;
-            opacity: 0.35;
+        .glow.one {
+            background: #7c3aed;
+
+            top: -230px;
+            left: -170px;
         }
 
-        .glow2 {
-            width: 300px;
-            height: 300px;
-            background: #00e5ff;
-            right: -120px;
-            bottom: -100px;
-            opacity: 0.25;
+        .glow.two {
+            background: #06b6d4;
+
+            right: -230px;
+            bottom: -220px;
         }
 
-        .glow3 {
-            width: 250px;
-            height: 250px;
-            background: #ff2bd6;
-            left: 40%;
-            top: 45%;
-            opacity: 0.12;
-        }
 
         /* =========================
-           MAIN CONTAINER
+           LOADING
         ========================= */
 
-        .container {
-            position: relative;
-            z-index: 1;
+        #loading {
 
-            min-height: 100vh;
+            position: fixed;
+
+            inset: 0;
 
             display: flex;
-            flex-direction: column;
-            align-items: center;
 
-            padding: 45px 20px;
+            align-items: center;
+            justify-content: center;
+
+            background: #050505;
+
+            z-index: 9999;
+
+            transition: opacity .4s ease;
         }
 
-        /* =========================
-           LOGO
-        ========================= */
+        .loading-logo {
 
-        .logo {
-            font-size: 32px;
+            font-size: 42px;
+
             font-weight: 900;
-            letter-spacing: -2px;
 
-            background: linear-gradient(
-                90deg,
-                #ffffff,
-                #a66cff,
-                #00e5ff,
-                #ffffff
-            );
+            letter-spacing: -3px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #ffffff,
+                    #a78bfa,
+                    #38bdf8,
+                    #ffffff
+                );
 
             background-size: 250% auto;
 
@@ -102,398 +147,1854 @@
 
             color: transparent;
 
-            animation: gradientMove 3s linear infinite;
-
-            filter:
-                drop-shadow(0 0 12px rgba(124, 60, 255, 0.5));
+            animation:
+                gradientMove 3s linear infinite,
+                loadingPulse 1.4s ease-in-out infinite;
         }
+
+        @keyframes gradientMove {
+
+            0% {
+                background-position: 0%;
+            }
+
+            100% {
+                background-position: 250%;
+            }
+
+        }
+
+        @keyframes loadingPulse {
+
+            0%,
+            100% {
+                opacity: .45;
+                transform: scale(.98);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+
 
         /* =========================
-           CONTENT
+           AUTH PAGE
         ========================= */
 
-        .content {
-            width: 100%;
-            max-width: 600px;
+        #authPage {
 
-            margin-top: 85px;
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 25px;
+
+        }
+
+
+        .auth-wrapper {
+
+            width: 100%;
+
+            max-width: 440px;
+
+            animation:
+                authAppear .7s ease forwards;
+        }
+
+        @keyframes authAppear {
+
+            from {
+                opacity: 0;
+                transform:
+                    translateY(20px)
+                    scale(.98);
+            }
+
+            to {
+                opacity: 1;
+                transform:
+                    translateY(0)
+                    scale(1);
+            }
+
+        }
+
+
+        /* =========================
+           AUTH LOGO
+        ========================= */
+
+        .auth-logo {
 
             text-align: center;
-        }
 
-        h1 {
-            font-size: clamp(38px, 8vw, 64px);
-            line-height: 1.05;
+            font-size: 48px;
 
-            letter-spacing: -3px;
+            font-weight: 900;
 
-            margin-bottom: 18px;
-        }
+            letter-spacing: -4px;
 
-        h1 span {
-            background: linear-gradient(
-                90deg,
-                #9b5cff,
-                #00e5ff
-            );
+            background:
+                linear-gradient(
+                    100deg,
+                    #ffffff,
+                    #a78bfa,
+                    #38bdf8
+                );
 
             -webkit-background-clip: text;
             background-clip: text;
 
             color: transparent;
+
+            margin-bottom: 8px;
         }
 
-        .subtitle {
-            color: rgba(255, 255, 255, 0.55);
+        .auth-tagline {
 
-            font-size: 17px;
+            text-align: center;
 
-            line-height: 1.5;
+            color:
+                rgba(255,255,255,.35);
 
-            margin-bottom: 45px;
+            font-size: 12px;
+
+            margin-bottom: 35px;
+
         }
+
 
         /* =========================
-           LANGUAGES
+           AUTH CARD
         ========================= */
 
-        .languages {
-            display: flex;
-            flex-direction: column;
+        .auth-card {
 
-            gap: 16px;
+            position: relative;
 
-            width: 100%;
-        }
+            padding: 32px;
 
-        .language {
-            width: 100%;
-            min-height: 92px;
+            border-radius: 28px;
 
-            display: flex;
-            align-items: center;
+            background:
+                rgba(255,255,255,.045);
 
-            padding: 0 24px;
-
-            border-radius: 23px;
-
-            border: 1px solid rgba(255, 255, 255, 0.1);
-
-            background: rgba(255, 255, 255, 0.055);
-
-            backdrop-filter: blur(15px);
-
-            color: white;
-
-            cursor: pointer;
-
-            transition:
-                transform 0.25s ease,
-                border-color 0.25s ease,
-                background 0.25s ease,
-                box-shadow 0.25s ease;
-        }
-
-        .language:hover {
-            transform: translateY(-5px) scale(1.015);
-
-            border-color: rgba(150, 100, 255, 0.75);
-
-            background: rgba(124, 60, 255, 0.13);
+            border:
+                1px solid
+                rgba(255,255,255,.09);
 
             box-shadow:
-                0 12px 45px rgba(124, 60, 255, 0.25);
+                0 30px 100px
+                rgba(0,0,0,.45);
+
+            backdrop-filter: blur(25px);
+
+            overflow: hidden;
         }
 
-        .language:active {
-            transform: scale(0.97);
+        .auth-card::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 180px;
+            height: 180px;
+
+            top: -100px;
+            right: -80px;
+
+            background:
+                rgba(139,92,246,.18);
+
+            filter: blur(60px);
+
+            border-radius: 50%;
+
+            pointer-events: none;
         }
 
-        /* =========================
-           FLAGS
-        ========================= */
 
-        .flag {
-            font-size: 40px;
+        .auth-title {
 
-            margin-right: 20px;
-
-            transition: transform 0.25s ease;
-        }
-
-        .language:hover .flag {
-            transform: scale(1.15) rotate(-3deg);
-        }
-
-        /* =========================
-           LANGUAGE TEXT
-        ========================= */
-
-        .language-info {
-            flex: 1;
-
-            text-align: left;
-        }
-
-        .language-name {
-            font-size: 21px;
+            font-size: 25px;
 
             font-weight: 800;
 
-            margin-bottom: 5px;
+            letter-spacing: -1px;
+
+            margin-bottom: 7px;
         }
 
-        .language-native {
-            font-size: 13px;
+        .auth-description {
 
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* =========================
-           ARROW
-        ========================= */
-
-        .arrow {
-            font-size: 27px;
-
-            color: rgba(255, 255, 255, 0.35);
-
-            transition:
-                transform 0.25s ease,
-                color 0.25s ease;
-        }
-
-        .language:hover .arrow {
-            transform: translateX(7px);
-
-            color: white;
-        }
-
-        /* =========================
-           FOOTER
-        ========================= */
-
-        .footer {
-            margin-top: 45px;
-
-            color: rgba(255, 255, 255, 0.25);
+            color:
+                rgba(255,255,255,.35);
 
             font-size: 12px;
+
+            margin-bottom: 27px;
+        }
+
+
+        /* =========================
+           INPUTS
+        ========================= */
+
+        .input-group {
+
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            color:
+                rgba(255,255,255,.45);
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            letter-spacing: .8px;
+
+            text-transform: uppercase;
+        }
+
+        .input {
+
+            width: 100%;
+
+            height: 50px;
+
+            padding: 0 15px;
+
+            border-radius: 13px;
+
+            outline: none;
+
+            border:
+                1px solid
+                rgba(255,255,255,.09);
+
+            background:
+                rgba(255,255,255,.045);
+
+            color: white;
+
+            font-family: inherit;
+
+            font-size: 13px;
+
+            transition: .2s;
+        }
+
+        .input::placeholder {
+
+            color:
+                rgba(255,255,255,.20);
+        }
+
+        .input:focus {
+
+            border-color:
+                rgba(139,92,246,.65);
+
+            background:
+                rgba(139,92,246,.07);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(139,92,246,.08);
+        }
+
+
+        /* =========================
+           BUTTON
+        ========================= */
+
+        .primary-button {
+
+            width: 100%;
+
+            height: 51px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            cursor: pointer;
+
+            color: white;
+
+            font-family: inherit;
+
+            font-size: 13px;
+
+            font-weight: 800;
+
+            background:
+                linear-gradient(
+                    100deg,
+                    #7c3aed,
+                    #8b5cf6,
+                    #6366f1
+                );
+
+            box-shadow:
+                0 10px 30px
+                rgba(124,58,237,.25);
+
+            transition:
+                transform .2s,
+                box-shadow .2s,
+                opacity .2s;
+        }
+
+        .primary-button:hover {
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 15px 40px
+                rgba(124,58,237,.35);
+        }
+
+        .primary-button:active {
+
+            transform:
+                translateY(0);
+        }
+
+        .primary-button:disabled {
+
+            opacity: .55;
+
+            cursor: wait;
+
+            transform: none;
+        }
+
+
+        /* =========================
+           DIVIDER
+        ========================= */
+
+        .divider {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin: 21px 0;
+        }
+
+        .divider-line {
+
+            flex: 1;
+
+            height: 1px;
+
+            background:
+                rgba(255,255,255,.07);
+        }
+
+        .divider-text {
+
+            color:
+                rgba(255,255,255,.25);
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
 
             letter-spacing: 1px;
         }
 
+
         /* =========================
-           ANIMATIONS
+           GOOGLE
         ========================= */
 
-        @keyframes gradientMove {
+        .google-button {
 
-            0% {
-                background-position: 0% center;
+            width: 100%;
+
+            height: 50px;
+
+            border-radius: 13px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.10);
+
+            background:
+                rgba(255,255,255,.045);
+
+            color: white;
+
+            font-family: inherit;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 10px;
+
+            transition: .2s;
+        }
+
+        .google-button:hover {
+
+            background:
+                rgba(255,255,255,.075);
+
+            border-color:
+                rgba(255,255,255,.16);
+
+            transform:
+                translateY(-1px);
+        }
+
+        .google-icon {
+
+            width: 18px;
+            height: 18px;
+
+            background: white;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            color: #4285F4;
+
+            font-size: 12px;
+
+            font-weight: 900;
+        }
+
+
+        /* =========================
+           SWITCH
+        ========================= */
+
+        .switch {
+
+            text-align: center;
+
+            margin-top: 23px;
+
+            color:
+                rgba(255,255,255,.3);
+
+            font-size: 11px;
+        }
+
+        .switch button {
+
+            border: none;
+
+            background: none;
+
+            color: #a78bfa;
+
+            cursor: pointer;
+
+            font-family: inherit;
+
+            font-weight: 700;
+
+            font-size: 11px;
+        }
+
+        .switch button:hover {
+
+            color: #c4b5fd;
+        }
+
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        .message {
+
+            display: none;
+
+            padding: 11px 13px;
+
+            margin-bottom: 15px;
+
+            border-radius: 11px;
+
+            font-size: 10px;
+
+            line-height: 1.5;
+        }
+
+        .message.show {
+
+            display: block;
+        }
+
+        .message.error {
+
+            color: #fda4af;
+
+            background:
+                rgba(244,63,94,.08);
+
+            border:
+                1px solid
+                rgba(244,63,94,.15);
+        }
+
+        .message.success {
+
+            color: #86efac;
+
+            background:
+                rgba(34,197,94,.08);
+
+            border:
+                1px solid
+                rgba(34,197,94,.15);
+        }
+
+
+        /* =========================
+           LANGUAGE PAGE
+        ========================= */
+
+        #languagePage {
+
+            display: none;
+
+            min-height: 100vh;
+
+            padding:
+                60px 25px;
+
+            align-items: center;
+
+            justify-content: center;
+        }
+
+        .language-wrapper {
+
+            width: 100%;
+
+            max-width: 850px;
+
+            margin: auto;
+        }
+
+        .language-header {
+
+            text-align: center;
+
+            margin-bottom: 38px;
+        }
+
+        .language-logo {
+
+            font-size: 30px;
+
+            font-weight: 900;
+
+            letter-spacing: -2px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    white,
+                    #a78bfa,
+                    #38bdf8
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+
+            margin-bottom: 35px;
+        }
+
+        .language-eyebrow {
+
+            color: #a78bfa;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 12px;
+        }
+
+        .language-title {
+
+            font-size:
+                clamp(34px, 6vw, 58px);
+
+            font-weight: 900;
+
+            letter-spacing: -3px;
+
+            line-height: 1;
+        }
+
+        .language-subtitle {
+
+            color:
+                rgba(255,255,255,.35);
+
+            font-size: 13px;
+
+            margin-top: 14px;
+        }
+
+
+        /* =========================
+           LANGUAGE CARDS
+        ========================= */
+
+        .language-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 15px;
+        }
+
+        .language-card {
+
+            position: relative;
+
+            min-height: 210px;
+
+            padding: 25px;
+
+            border-radius: 24px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.08);
+
+            background:
+                rgba(255,255,255,.045);
+
+            cursor: pointer;
+
+            overflow: hidden;
+
+            transition:
+                transform .25s,
+                border-color .25s,
+                background .25s;
+        }
+
+        .language-card:hover {
+
+            transform:
+                translateY(-7px);
+
+            border-color:
+                rgba(139,92,246,.4);
+
+            background:
+                rgba(139,92,246,.08);
+
+            box-shadow:
+                0 20px 50px
+                rgba(0,0,0,.25);
+        }
+
+        .language-card::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 130px;
+            height: 130px;
+
+            right: -60px;
+            bottom: -60px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(139,92,246,.12);
+
+            filter: blur(30px);
+        }
+
+        .language-symbol {
+
+            width: 48px;
+            height: 48px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 14px;
+
+            background:
+                rgba(255,255,255,.06);
+
+            border:
+                1px solid
+                rgba(255,255,255,.08);
+
+            font-size: 13px;
+
+            font-weight: 900;
+
+            margin-bottom: 45px;
+        }
+
+        .language-name {
+
+            font-size: 18px;
+
+            font-weight: 800;
+
+            letter-spacing: -.5px;
+        }
+
+        .language-native {
+
+            color:
+                rgba(255,255,255,.3);
+
+            font-size: 10px;
+
+            margin-top: 6px;
+        }
+
+
+        /* =========================
+           USER
+        ========================= */
+
+        .user-bar {
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 8px;
+
+            margin-top: 30px;
+
+            color:
+                rgba(255,255,255,.25);
+
+            font-size: 10px;
+        }
+
+        .user-email {
+
+            color:
+                rgba(255,255,255,.5);
+        }
+
+        .logout-button {
+
+            border: none;
+
+            background: none;
+
+            color: #a78bfa;
+
+            font-family: inherit;
+
+            font-size: 10px;
+
+            cursor: pointer;
+
+            font-weight: 700;
+        }
+
+        .logout-button:hover {
+
+            color: white;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .language-grid {
+
+                grid-template-columns: 1fr;
+
             }
 
-            100% {
-                background-position: 250% center;
+            .language-card {
+
+                min-height: 145px;
+
+            }
+
+            .language-symbol {
+
+                margin-bottom: 20px;
+
             }
 
         }
 
-        /* =========================
-           MOBILE
-        ========================= */
+        @media (max-width: 480px) {
 
-        @media (max-width: 500px) {
+            #authPage {
 
-            .container {
-                padding: 35px 18px;
+                padding: 15px;
+
             }
 
-            .content {
-                margin-top: 70px;
+            .auth-card {
+
+                padding: 23px;
+
             }
 
-            h1 {
-                font-size: 43px;
+            .auth-logo {
+
+                font-size: 42px;
+
             }
 
-            .subtitle {
-                font-size: 15px;
+            .language-title {
 
-                margin-bottom: 35px;
+                letter-spacing: -2px;
+
             }
 
-            .language {
-                min-height: 82px;
-
-                padding: 0 20px;
-
-                border-radius: 20px;
-            }
-
-            .flag {
-                font-size: 32px;
-
-                margin-right: 16px;
-            }
-
-            .language-name {
-                font-size: 18px;
-            }
-
-            .arrow {
-                font-size: 23px;
-            }
         }
+
     </style>
+
 </head>
 
 
 <body>
 
-    <!-- Background -->
-    <div class="glow glow1"></div>
-    <div class="glow glow2"></div>
-    <div class="glow glow3"></div>
 
-
-    <!-- Main -->
-    <main class="container">
-
-        <!-- Logo -->
-        <div class="logo">
-            WayGo
-        </div>
-
-
-        <!-- Content -->
-        <section class="content">
-
-            <h1>
-                Choose your<br>
-                <span>language.</span>
-            </h1>
-
-            <p class="subtitle">
-                Pick a language and start your learning journey.
-            </p>
-
-
-            <!-- Languages -->
-            <div class="languages">
-
-
-                <!-- ENGLISH -->
-                <div
-                    class="language"
-                    onclick="selectLanguage('english.html')"
-                >
-
-                    <div class="flag">
-                        🇬🇧
-                    </div>
-
-                    <div class="language-info">
-
-                        <div class="language-name">
-                            English
-                        </div>
-
-                        <div class="language-native">
-                            English
-                        </div>
-
-                    </div>
-
-                    <div class="arrow">
-                        →
-                    </div>
-
-                </div>
-
-
-                <!-- FRANÇAIS -->
-                <div
-                    class="language"
-                    onclick="selectLanguage('francais.html')"
-                >
-
-                    <div class="flag">
-                        🇫🇷
-                    </div>
-
-                    <div class="language-info">
-
-                        <div class="language-name">
-                            Français
-                        </div>
-
-                        <div class="language-native">
-                            French
-                        </div>
-
-                    </div>
-
-                    <div class="arrow">
-                        →
-                    </div>
-
-                </div>
-
-
-                <!-- SLOVENČINA -->
-                <div
-                    class="language"
-                    onclick="selectLanguage('slovencina.html')"
-                >
-
-                    <div class="flag">
-                        🇸🇰
-                    </div>
-
-                    <div class="language-info">
-
-                        <div class="language-name">
-                            Slovenčina
-                        </div>
-
-                        <div class="language-native">
-                            Slovak
-                        </div>
-
-                    </div>
-
-                    <div class="arrow">
-                        →
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-            <!-- Footer -->
-            <div class="footer">
-                Learn. Scroll. Grow. 🚀
-            </div>
-
-        </section>
-
-    </main>
+    <div class="glow one"></div>
+    <div class="glow two"></div>
 
 
     <!-- =========================
-         JAVASCRIPT
+         LOADING
     ========================= -->
+
+    <div id="loading">
+
+        <div class="loading-logo">
+            WayGo
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         LOGIN / REGISTER
+    ========================= -->
+
+    <section id="authPage">
+
+        <div class="auth-wrapper">
+
+            <div class="auth-logo">
+                WayGo
+            </div>
+
+            <div class="auth-tagline">
+                Learn. Connect. Go further.
+            </div>
+
+
+            <div class="auth-card">
+
+                <h1
+                    class="auth-title"
+                    id="authTitle"
+                >
+                    Welcome back
+                </h1>
+
+                <p
+                    class="auth-description"
+                    id="authDescription"
+                >
+                    Sign in to continue your learning journey.
+                </p>
+
+
+                <div
+                    class="message"
+                    id="message"
+                ></div>
+
+
+                <!-- EMAIL -->
+
+                <div class="input-group">
+
+                    <label class="input-label">
+                        Email
+                    </label>
+
+                    <input
+                        class="input"
+                        id="email"
+                        type="email"
+                        autocomplete="email"
+                        placeholder="you@example.com"
+                    >
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="input-group">
+
+                    <label class="input-label">
+                        Password
+                    </label>
+
+                    <input
+                        class="input"
+                        id="password"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="Your password"
+                    >
+
+                </div>
+
+
+                <button
+                    class="primary-button"
+                    id="authButton"
+                    onclick="handleAuth()"
+                >
+                    Sign in
+                </button>
+
+
+                <!-- DIVIDER -->
+
+                <div class="divider">
+
+                    <div class="divider-line"></div>
+
+                    <div class="divider-text">
+                        or
+                    </div>
+
+                    <div class="divider-line"></div>
+
+                </div>
+
+
+                <!-- GOOGLE -->
+
+                <button
+                    class="google-button"
+                    onclick="signInWithGoogle()"
+                >
+
+                    <span class="google-icon">
+                        G
+                    </span>
+
+                    Continue with Google
+
+                </button>
+
+
+                <!-- SWITCH -->
+
+                <div class="switch">
+
+                    <span id="switchText">
+                        Don't have an account?
+                    </span>
+
+                    <button
+                        onclick="toggleAuthMode()"
+                        id="switchButton"
+                    >
+                        Create account
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         LANGUAGE SELECTION
+    ========================= -->
+
+    <section id="languagePage">
+
+        <div class="language-wrapper">
+
+
+            <div class="language-header">
+
+                <div class="language-logo">
+                    WayGo
+                </div>
+
+                <div class="language-eyebrow">
+                    Your learning journey
+                </div>
+
+                <h1 class="language-title">
+                    Choose your language.
+                </h1>
+
+                <p class="language-subtitle">
+                    Pick a language and start learning.
+                </p>
+
+            </div>
+
+
+            <div class="language-grid">
+
+
+                <!-- ENGLISH -->
+
+                <div
+                    class="language-card"
+                    onclick="goToLanguage('english.html')"
+                >
+
+                    <div class="language-symbol">
+                        EN
+                    </div>
+
+                    <div class="language-name">
+                        English
+                    </div>
+
+                    <div class="language-native">
+                        English
+                    </div>
+
+                </div>
+
+
+                <!-- FRENCH -->
+
+                <div
+                    class="language-card"
+                    onclick="goToLanguage('francais.html')"
+                >
+
+                    <div class="language-symbol">
+                        FR
+                    </div>
+
+                    <div class="language-name">
+                        Français
+                    </div>
+
+                    <div class="language-native">
+                        French
+                    </div>
+
+                </div>
+
+
+                <!-- SLOVAK -->
+
+                <div
+                    class="language-card"
+                    onclick="goToLanguage('slovencina.html')"
+                >
+
+                    <div class="language-symbol">
+                        SK
+                    </div>
+
+                    <div class="language-name">
+                        Slovenčina
+                    </div>
+
+                    <div class="language-native">
+                        Slovak
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="user-bar">
+
+                <span>
+                    Signed in as
+                </span>
+
+                <span
+                    class="user-email"
+                    id="userEmail"
+                ></span>
+
+                <span>
+                    ·
+                </span>
+
+                <button
+                    class="logout-button"
+                    onclick="logout()"
+                >
+                    Log out
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
 
     <script>
 
-        function selectLanguage(page) {
+        /* =========================================
+           SUPABASE CONFIG
+        ========================================= */
 
-            window.location.href = page;
+        const SUPABASE_URL =
+            "https://nimksvcrtzjnwhgiobzg.supabase.co";
+
+        const SUPABASE_KEY =
+            "sb_publishable_0OP65AMl9UtiRiTmcO6uBQ_XtbSgy37";
+
+
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+
+
+        /* =========================================
+           ELEMENTS
+        ========================================= */
+
+        const loading =
+            document.getElementById("loading");
+
+        const authPage =
+            document.getElementById("authPage");
+
+        const languagePage =
+            document.getElementById("languagePage");
+
+        const authTitle =
+            document.getElementById("authTitle");
+
+        const authDescription =
+            document.getElementById("authDescription");
+
+        const authButton =
+            document.getElementById("authButton");
+
+        const switchText =
+            document.getElementById("switchText");
+
+        const switchButton =
+            document.getElementById("switchButton");
+
+        const message =
+            document.getElementById("message");
+
+        const emailInput =
+            document.getElementById("email");
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const userEmail =
+            document.getElementById("userEmail");
+
+
+        let isRegisterMode = false;
+
+
+        /* =========================================
+           INITIAL CHECK
+        ========================================= */
+
+        async function initialize() {
+
+            try {
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient.auth.getSession();
+
+
+                if (error) {
+
+                    console.error(error);
+
+                    showAuth();
+
+                    return;
+
+                }
+
+
+                if (
+                    data &&
+                    data.session &&
+                    data.session.user
+                ) {
+
+                    showLanguagePage(
+                        data.session.user
+                    );
+
+                } else {
+
+                    showAuth();
+
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+                showAuth();
+
+            }
 
         }
+
+
+        /* =========================================
+           AUTH STATE LISTENER
+        ========================================= */
+
+        supabaseClient.auth.onAuthStateChange(
+            async (event, session) => {
+
+                console.log(
+                    "Auth event:",
+                    event
+                );
+
+
+                if (
+                    session &&
+                    session.user
+                ) {
+
+                    showLanguagePage(
+                        session.user
+                    );
+
+                } else {
+
+                    showAuth();
+
+                }
+
+            }
+        );
+
+
+        /* =========================================
+           SHOW AUTH
+        ========================================= */
+
+        function showAuth() {
+
+            authPage.style.display =
+                "flex";
+
+            languagePage.style.display =
+                "none";
+
+            hideLoading();
+
+        }
+
+
+        /* =========================================
+           SHOW LANGUAGE
+        ========================================= */
+
+        function showLanguagePage(user) {
+
+            authPage.style.display =
+                "none";
+
+            languagePage.style.display =
+                "flex";
+
+
+            if (user && user.email) {
+
+                userEmail.textContent =
+                    user.email;
+
+            }
+
+
+            hideLoading();
+
+        }
+
+
+        /* =========================================
+           HIDE LOADING
+        ========================================= */
+
+        function hideLoading() {
+
+            loading.style.opacity = "0";
+
+            setTimeout(
+                () => {
+
+                    loading.style.display =
+                        "none";
+
+                },
+                400
+            );
+
+        }
+
+
+        /* =========================================
+           TOGGLE LOGIN / REGISTER
+        ========================================= */
+
+        function toggleAuthMode() {
+
+            isRegisterMode =
+                !isRegisterMode;
+
+
+            clearMessage();
+
+
+            if (isRegisterMode) {
+
+                authTitle.textContent =
+                    "Create your account";
+
+                authDescription.textContent =
+                    "Start your learning journey with WayGo.";
+
+                authButton.textContent =
+                    "Create account";
+
+                switchText.textContent =
+                    "Already have an account?";
+
+                switchButton.textContent =
+                    "Sign in";
+
+                passwordInput.autocomplete =
+                    "new-password";
+
+            } else {
+
+                authTitle.textContent =
+                    "Welcome back";
+
+                authDescription.textContent =
+                    "Sign in to continue your learning journey.";
+
+                authButton.textContent =
+                    "Sign in";
+
+                switchText.textContent =
+                    "Don't have an account?";
+
+                switchButton.textContent =
+                    "Create account";
+
+                passwordInput.autocomplete =
+                    "current-password";
+
+            }
+
+        }
+
+
+        /* =========================================
+           EMAIL AUTH
+        ========================================= */
+
+        async function handleAuth() {
+
+            const email =
+                emailInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+
+            clearMessage();
+
+
+            if (!email) {
+
+                showMessage(
+                    "Please enter your email.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (!password) {
+
+                showMessage(
+                    "Please enter your password.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (password.length < 6) {
+
+                showMessage(
+                    "Password must be at least 6 characters.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            setButtonLoading(true);
+
+
+            try {
+
+                if (isRegisterMode) {
+
+                    const {
+                        data,
+                        error
+                    } =
+                        await supabaseClient.auth.signUp(
+                            {
+                                email: email,
+                                password: password
+                            }
+                        );
+
+
+                    if (error) {
+
+                        throw error;
+
+                    }
+
+
+                    if (
+                        data.user &&
+                        !data.session
+                    ) {
+
+                        showMessage(
+                            "Account created. Check your email to confirm your account.",
+                            "success"
+                        );
+
+                    } else {
+
+                        showMessage(
+                            "Account created successfully.",
+                            "success"
+                        );
+
+                    }
+
+                } else {
+
+                    const {
+                        data,
+                        error
+                    } =
+                        await supabaseClient.auth.signInWithPassword(
+                            {
+                                email: email,
+                                password: password
+                            }
+                        );
+
+
+                    if (error) {
+
+                        throw error;
+
+                    }
+
+
+                    if (
+                        data &&
+                        data.user
+                    ) {
+
+                        showLanguagePage(
+                            data.user
+                        );
+
+                    }
+
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+                showMessage(
+                    getFriendlyError(error),
+                    "error"
+                );
+
+            } finally {
+
+                setButtonLoading(false);
+
+            }
+
+        }
+
+
+        /* =========================================
+           GOOGLE LOGIN
+        ========================================= */
+
+        async function signInWithGoogle() {
+
+            clearMessage();
+
+
+            try {
+
+                const {
+                    error
+                } =
+                    await supabaseClient.auth.signInWithOAuth(
+                        {
+                            provider: "google",
+
+                            options: {
+
+                                redirectTo:
+                                    window.location.origin +
+                                    window.location.pathname
+
+                            }
+                        }
+                    );
+
+
+                if (error) {
+
+                    throw error;
+
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+                showMessage(
+                    getFriendlyError(error),
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /* =========================================
+           LOGOUT
+        ========================================= */
+
+        async function logout() {
+
+            try {
+
+                const {
+                    error
+                } =
+                    await supabaseClient.auth.signOut();
+
+
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+                emailInput.value = "";
+
+                passwordInput.value = "";
+
+                clearMessage();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                showMessage(
+                    getFriendlyError(error),
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /* =========================================
+           LANGUAGE NAVIGATION
+        ========================================= */
+
+        function goToLanguage(page) {
+
+            window.location.href =
+                page;
+
+        }
+
+
+        /* =========================================
+           BUTTON LOADING
+        ========================================= */
+
+        function setButtonLoading(loadingState) {
+
+            authButton.disabled =
+                loadingState;
+
+
+            if (loadingState) {
+
+                authButton.textContent =
+                    isRegisterMode
+                        ? "Creating account..."
+                        : "Signing in...";
+
+            } else {
+
+                authButton.textContent =
+                    isRegisterMode
+                        ? "Create account"
+                        : "Sign in";
+
+            }
+
+        }
+
+
+        /* =========================================
+           MESSAGE
+        ========================================= */
+
+        function showMessage(
+            text,
+            type
+        ) {
+
+            message.textContent =
+                text;
+
+            message.className =
+                "message show " + type;
+
+        }
+
+
+        function clearMessage() {
+
+            message.textContent =
+                "";
+
+            message.className =
+                "message";
+
+        }
+
+
+        /* =========================================
+           FRIENDLY ERRORS
+        ========================================= */
+
+        function getFriendlyError(error) {
+
+            if (!error) {
+
+                return "Something went wrong.";
+
+            }
+
+
+            const msg =
+                error.message || "";
+
+
+            if (
+                msg.toLowerCase()
+                    .includes("invalid login credentials")
+            ) {
+
+                return "Incorrect email or password.";
+
+            }
+
+
+            if (
+                msg.toLowerCase()
+                    .includes("user already registered")
+            ) {
+
+                return "An account with this email already exists.";
+
+            }
+
+
+            if (
+                msg.toLowerCase()
+                    .includes("email not confirmed")
+            ) {
+
+                return "Please confirm your email before signing in.";
+
+            }
+
+
+            if (
+                msg.toLowerCase()
+                    .includes("password")
+            ) {
+
+                return msg;
+
+            }
+
+
+            return msg ||
+                "Something went wrong. Please try again.";
+
+        }
+
+
+        /* =========================================
+           ENTER KEY
+        ========================================= */
+
+        emailInput.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    handleAuth();
+
+                }
+
+            }
+        );
+
+
+        passwordInput.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    handleAuth();
+
+                }
+
+            }
+        );
+
+
+        /* =========================================
+           START
+        ========================================= */
+
+        initialize();
 
     </script>
 
