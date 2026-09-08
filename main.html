@@ -1,489 +1,498 @@
 <!DOCTYPE html>
-<html lang="sk">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>WayGO</title>
+    <title>WayGo</title>
 
     <style>
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        html,
-        body {
-            width: 100%;
-            min-height: 100%;
-        }
-
         body {
             min-height: 100vh;
-
-            font-family: Arial, Helvetica, sans-serif;
-
+            background: #050505;
             color: white;
-
-            background:
-                radial-gradient(
-                    circle at 50% 45%,
-                    #35106b 0%,
-                    #19052f 38%,
-                    #080013 72%,
-                    #020005 100%
-                );
-
-            overflow: hidden;
+            font-family: Arial, Helvetica, sans-serif;
+            overflow-x: hidden;
         }
 
-        /* ===============================
-           VESMÍR
-        =============================== */
+        /* =========================
+           BACKGROUND GLOW
+        ========================= */
 
-        .space {
+        .glow {
             position: fixed;
-            inset: 0;
-
-            overflow: hidden;
-
-            pointer-events: none;
-        }
-
-        .nebula {
-            position: absolute;
-
-            width: 750px;
-            height: 750px;
-
-            left: 50%;
-            top: 50%;
-
-            transform: translate(-50%, -50%);
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(168, 85, 247, 0.22),
-                    rgba(126, 34, 206, 0.08) 40%,
-                    transparent 70%
-                );
-
-            filter: blur(50px);
-        }
-
-        /* ===============================
-           HVIEZDY
-        =============================== */
-
-        .star {
-            position: absolute;
-
-            background: white;
-
             border-radius: 50%;
-
-            box-shadow:
-                0 0 5px white,
-                0 0 10px #c084fc;
-
-            animation:
-                twinkle
-                var(--duration)
-                ease-in-out
-                infinite alternate;
+            filter: blur(110px);
+            pointer-events: none;
+            z-index: 0;
         }
 
-        @keyframes twinkle {
-
-            from {
-                opacity: var(--opacity);
-                transform: scale(0.7);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1.4);
-            }
-
+        .glow1 {
+            width: 350px;
+            height: 350px;
+            background: #7c3cff;
+            top: -150px;
+            left: -120px;
+            opacity: 0.35;
         }
 
-        /* ===============================
-           HLAVNÝ OBSAH
-        =============================== */
+        .glow2 {
+            width: 300px;
+            height: 300px;
+            background: #00e5ff;
+            right: -120px;
+            bottom: -100px;
+            opacity: 0.25;
+        }
+
+        .glow3 {
+            width: 250px;
+            height: 250px;
+            background: #ff2bd6;
+            left: 40%;
+            top: 45%;
+            opacity: 0.12;
+        }
+
+        /* =========================
+           MAIN CONTAINER
+        ========================= */
 
         .container {
-
             position: relative;
-
-            z-index: 5;
+            z-index: 1;
 
             min-height: 100vh;
 
             display: flex;
-
             flex-direction: column;
-
-            justify-content: center;
-
             align-items: center;
 
-            padding: 30px 20px;
+            padding: 45px 20px;
+        }
+
+        /* =========================
+           LOGO
+        ========================= */
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -2px;
+
+            background: linear-gradient(
+                90deg,
+                #ffffff,
+                #a66cff,
+                #00e5ff,
+                #ffffff
+            );
+
+            background-size: 250% auto;
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+
+            animation: gradientMove 3s linear infinite;
+
+            filter:
+                drop-shadow(0 0 12px rgba(124, 60, 255, 0.5));
+        }
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            width: 100%;
+            max-width: 600px;
+
+            margin-top: 85px;
 
             text-align: center;
         }
 
-        /* ===============================
-           LOGO
-        =============================== */
+        h1 {
+            font-size: clamp(38px, 8vw, 64px);
+            line-height: 1.05;
 
-        .logo {
+            letter-spacing: -3px;
 
-            font-size:
-                clamp(50px, 11vw, 100px);
+            margin-bottom: 18px;
+        }
 
-            font-weight: 900;
+        h1 span {
+            background: linear-gradient(
+                90deg,
+                #9b5cff,
+                #00e5ff
+            );
 
-            letter-spacing: 8px;
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.55);
+
+            font-size: 17px;
+
+            line-height: 1.5;
 
             margin-bottom: 45px;
-
-            color: white;
-
-            text-shadow:
-                0 0 10px white,
-                0 0 25px #e9d5ff,
-                0 0 50px #c084fc,
-                0 0 80px #a855f7,
-                0 0 120px #7e22ce;
         }
 
-        /* ===============================
-           NADPIS
-        =============================== */
-
-        .title {
-
-            font-size:
-                clamp(28px, 6vw, 48px);
-
-            margin-bottom: 30px;
-
-            color: white;
-
-            text-shadow:
-                0 0 20px rgba(192,132,252,0.5);
-        }
-
-        /* ===============================
-           JAZYKY
-        =============================== */
+        /* =========================
+           LANGUAGES
+        ========================= */
 
         .languages {
-
-            width: min(520px, 100%);
-
             display: flex;
-
             flex-direction: column;
 
-            gap: 18px;
+            gap: 16px;
+
+            width: 100%;
         }
 
         .language {
-
-            position: relative;
-
             width: 100%;
-
-            min-height: 90px;
+            min-height: 92px;
 
             display: flex;
-
             align-items: center;
 
-            padding: 18px 25px;
+            padding: 0 24px;
 
-            border-radius: 20px;
+            border-radius: 23px;
 
-            border: 1px solid
-                rgba(216,180,254,0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
 
-            background:
-                rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.055);
 
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(15px);
 
             color: white;
 
-            text-decoration: none;
+            cursor: pointer;
 
             transition:
                 transform 0.25s ease,
-                background 0.25s ease,
                 border-color 0.25s ease,
+                background 0.25s ease,
                 box-shadow 0.25s ease;
         }
 
         .language:hover {
+            transform: translateY(-5px) scale(1.015);
 
-            transform:
-                translateY(-4px)
-                scale(1.02);
+            border-color: rgba(150, 100, 255, 0.75);
 
-            background:
-                rgba(168,85,247,0.15);
-
-            border-color:
-                rgba(216,180,254,0.75);
+            background: rgba(124, 60, 255, 0.13);
 
             box-shadow:
-                0 10px 35px
-                rgba(126,34,206,0.35),
-
-                0 0 25px
-                rgba(168,85,247,0.2);
+                0 12px 45px rgba(124, 60, 255, 0.25);
         }
 
-        /* ===============================
-           VLÁJKA
-        =============================== */
+        .language:active {
+            transform: scale(0.97);
+        }
+
+        /* =========================
+           FLAGS
+        ========================= */
 
         .flag {
-
-            font-size: 42px;
-
-            width: 65px;
+            font-size: 40px;
 
             margin-right: 20px;
+
+            transition: transform 0.25s ease;
         }
 
-        /* ===============================
-           NÁZOV JAZYKA
-        =============================== */
+        .language:hover .flag {
+            transform: scale(1.15) rotate(-3deg);
+        }
 
-        .language-name {
+        /* =========================
+           LANGUAGE TEXT
+        ========================= */
 
-            font-size: 23px;
-
-            font-weight: 700;
+        .language-info {
+            flex: 1;
 
             text-align: left;
-
-            letter-spacing: 0.5px;
         }
 
-        /* ===============================
-           ŠÍPKA
-        =============================== */
+        .language-name {
+            font-size: 21px;
+
+            font-weight: 800;
+
+            margin-bottom: 5px;
+        }
+
+        .language-native {
+            font-size: 13px;
+
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* =========================
+           ARROW
+        ========================= */
 
         .arrow {
+            font-size: 27px;
 
-            margin-left: auto;
-
-            font-size: 30px;
-
-            color: #c084fc;
+            color: rgba(255, 255, 255, 0.35);
 
             transition:
-                transform 0.25s ease;
+                transform 0.25s ease,
+                color 0.25s ease;
         }
 
         .language:hover .arrow {
+            transform: translateX(7px);
 
-            transform:
-                translateX(7px);
+            color: white;
         }
 
-        /* ===============================
-           MOBIL
-        =============================== */
+        /* =========================
+           FOOTER
+        ========================= */
 
-        @media (max-width: 600px) {
+        .footer {
+            margin-top: 45px;
 
-            .logo {
+            color: rgba(255, 255, 255, 0.25);
+
+            font-size: 12px;
+
+            letter-spacing: 1px;
+        }
+
+        /* =========================
+           ANIMATIONS
+        ========================= */
+
+        @keyframes gradientMove {
+
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 250% center;
+            }
+
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 500px) {
+
+            .container {
+                padding: 35px 18px;
+            }
+
+            .content {
+                margin-top: 70px;
+            }
+
+            h1 {
+                font-size: 43px;
+            }
+
+            .subtitle {
+                font-size: 15px;
+
                 margin-bottom: 35px;
             }
 
-            .title {
-                margin-bottom: 25px;
-            }
-
             .language {
-                min-height: 80px;
-                padding: 15px 18px;
+                min-height: 82px;
+
+                padding: 0 20px;
+
+                border-radius: 20px;
             }
 
             .flag {
-                font-size: 34px;
-                width: 50px;
-                margin-right: 15px;
+                font-size: 32px;
+
+                margin-right: 16px;
             }
 
             .language-name {
-                font-size: 20px;
+                font-size: 18px;
             }
 
             .arrow {
-                font-size: 24px;
+                font-size: 23px;
             }
         }
-
     </style>
 </head>
 
 
 <body>
 
-    <!-- Vesmír -->
-
-    <div class="space">
-
-        <div class="nebula"></div>
-
-    </div>
+    <!-- Background -->
+    <div class="glow glow1"></div>
+    <div class="glow glow2"></div>
+    <div class="glow glow3"></div>
 
 
-    <!-- Obsah -->
-
+    <!-- Main -->
     <main class="container">
 
+        <!-- Logo -->
         <div class="logo">
-            WayGO
+            WayGo
         </div>
 
 
-        <h1 class="title">
-            Choose your language
-        </h1>
+        <!-- Content -->
+        <section class="content">
+
+            <h1>
+                Choose your<br>
+                <span>language.</span>
+            </h1>
+
+            <p class="subtitle">
+                Pick a language and start your learning journey.
+            </p>
 
 
-        <div class="languages">
+            <!-- Languages -->
+            <div class="languages">
 
-            <!-- SLOVENČINA -->
 
-            <a
-                href="slovencina.html"
-                class="language"
-            >
+                <!-- ENGLISH -->
+                <div
+                    class="language"
+                    onclick="selectLanguage('english.html')"
+                >
 
-                <div class="flag">
-                    🇸🇰
+                    <div class="flag">
+                        🇬🇧
+                    </div>
+
+                    <div class="language-info">
+
+                        <div class="language-name">
+                            English
+                        </div>
+
+                        <div class="language-native">
+                            English
+                        </div>
+
+                    </div>
+
+                    <div class="arrow">
+                        →
+                    </div>
+
                 </div>
 
-                <div class="language-name">
-                    Slovenčina
+
+                <!-- FRANÇAIS -->
+                <div
+                    class="language"
+                    onclick="selectLanguage('francais.html')"
+                >
+
+                    <div class="flag">
+                        🇫🇷
+                    </div>
+
+                    <div class="language-info">
+
+                        <div class="language-name">
+                            Français
+                        </div>
+
+                        <div class="language-native">
+                            French
+                        </div>
+
+                    </div>
+
+                    <div class="arrow">
+                        →
+                    </div>
+
                 </div>
 
-                <div class="arrow">
-                    →
+
+                <!-- SLOVENČINA -->
+                <div
+                    class="language"
+                    onclick="selectLanguage('slovencina.html')"
+                >
+
+                    <div class="flag">
+                        🇸🇰
+                    </div>
+
+                    <div class="language-info">
+
+                        <div class="language-name">
+                            Slovenčina
+                        </div>
+
+                        <div class="language-native">
+                            Slovak
+                        </div>
+
+                    </div>
+
+                    <div class="arrow">
+                        →
+                    </div>
+
                 </div>
 
-            </a>
+
+            </div>
 
 
-            <!-- ENGLISH -->
+            <!-- Footer -->
+            <div class="footer">
+                Learn. Scroll. Grow. 🚀
+            </div>
 
-            <a
-                href="english.html"
-                class="language"
-            >
-
-                <div class="flag">
-                    🇬🇧
-                </div>
-
-                <div class="language-name">
-                    English
-                </div>
-
-                <div class="arrow">
-                    →
-                </div>
-
-            </a>
-
-
-            <!-- FRANÇAIS -->
-
-            <a
-                href="francuzstina.html"
-                class="language"
-            >
-
-                <div class="flag">
-                    🇫🇷
-                </div>
-
-                <div class="language-name">
-                    Français
-                </div>
-
-                <div class="arrow">
-                    →
-                </div>
-
-            </a>
-
-        </div>
+        </section>
 
     </main>
 
 
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
     <script>
 
-        /* ===============================
-           NÁHODNÉ HVIEZDY
-        =============================== */
+        function selectLanguage(page) {
 
-        const space =
-            document.querySelector(".space");
+            window.location.href = page;
 
-        const numberOfStars = 180;
-
-        for (
-            let i = 0;
-            i < numberOfStars;
-            i++
-        ) {
-
-            const star =
-                document.createElement("div");
-
-            star.classList.add("star");
-
-            star.style.left =
-                Math.random() * 100 + "%";
-
-            star.style.top =
-                Math.random() * 100 + "%";
-
-            const size =
-                Math.random() * 2.5 + 1;
-
-            star.style.width =
-                size + "px";
-
-            star.style.height =
-                size + "px";
-
-            star.style.setProperty(
-                "--opacity",
-                Math.random() * 0.6 + 0.25
-            );
-
-            star.style.setProperty(
-                "--duration",
-                Math.random() * 3 + 1.5 + "s"
-            );
-
-            star.style.animationDelay =
-                Math.random() * 4 + "s";
-
-            space.appendChild(star);
         }
 
     </script>
