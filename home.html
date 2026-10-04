@@ -1,0 +1,2488 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Wago — Home</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #030205;
+            --card: #0b0810;
+            --purple: #9333ea;
+            --purple-light: #b477ff;
+            --muted: #77717f;
+            --border: rgba(255,255,255,.08);
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            overflow: hidden;
+
+            background:
+                radial-gradient(
+                    circle at 50% -10%,
+                    rgba(124,58,237,.22),
+                    transparent 45%
+                ),
+                var(--bg);
+
+            color: white;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* =================================
+           APP
+        ================================= */
+
+        .app {
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            position: relative;
+        }
+
+        /* =================================
+           TOP BAR
+        ================================= */
+
+        .topbar {
+            height: 68px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 22px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            background:
+                rgba(3,2,5,.82);
+
+            backdrop-filter:
+                blur(20px);
+
+            position: relative;
+            z-index: 20;
+        }
+
+        .logo {
+            color: #a855f7;
+
+            font-size: 19px;
+
+            font-weight: 900;
+
+            letter-spacing: 5px;
+        }
+
+        .profile-button {
+            width: 39px;
+            height: 39px;
+
+            border-radius: 50%;
+
+            border:
+                1px solid rgba(168,85,247,.25);
+
+            background:
+                rgba(168,85,247,.08);
+
+            color: #c084fc;
+
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-button svg {
+            width: 19px;
+            height: 19px;
+
+            fill: none;
+
+            stroke: currentColor;
+
+            stroke-width: 1.6;
+        }
+
+        /* =================================
+           CATEGORY BAR
+        ================================= */
+
+        .category-wrapper {
+            flex-shrink: 0;
+
+            padding:
+                13px 0 11px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,.05);
+
+            background:
+                rgba(3,2,5,.72);
+
+            position: relative;
+            z-index: 15;
+        }
+
+        .categories {
+            display: flex;
+
+            gap: 8px;
+
+            overflow-x: auto;
+
+            padding:
+                0 18px;
+
+            scrollbar-width: none;
+        }
+
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category {
+            flex-shrink: 0;
+
+            height: 38px;
+
+            padding:
+                0 15px;
+
+            border-radius: 12px;
+
+            border:
+                1px solid var(--border);
+
+            background:
+                rgba(255,255,255,.035);
+
+            color: #8b8492;
+
+            cursor: pointer;
+
+            white-space: nowrap;
+
+            font-size: 12px;
+
+            font-weight: 750;
+
+            transition: .2s;
+        }
+
+        .category:hover {
+            color: white;
+
+            border-color:
+                rgba(168,85,247,.3);
+        }
+
+        .category.active {
+            color: white;
+
+            border-color:
+                rgba(168,85,247,.55);
+
+            background:
+                rgba(147,51,234,.15);
+
+            box-shadow:
+                0 0 20px
+                rgba(147,51,234,.08);
+        }
+
+        /* =================================
+           FEED
+        ================================= */
+
+        .feed-area {
+            flex: 1;
+
+            min-height: 0;
+
+            overflow-y: auto;
+
+            padding:
+                22px 16px 105px;
+
+            scrollbar-width: none;
+        }
+
+        .feed-area::-webkit-scrollbar {
+            display: none;
+        }
+
+        .feed {
+            width: 100%;
+            max-width: 680px;
+
+            margin: 0 auto;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 15px;
+        }
+
+        /* =================================
+           WELCOME
+        ================================= */
+
+        .welcome {
+            padding: 10px 4px 5px;
+        }
+
+        .welcome-small {
+            color: #8b8492;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            letter-spacing: 1.4px;
+
+            text-transform: uppercase;
+
+            margin-bottom: 7px;
+        }
+
+        .welcome h1 {
+            font-size: 29px;
+
+            letter-spacing: -1px;
+        }
+
+        .welcome h1 span {
+            color: #b477ff;
+        }
+
+        /* =================================
+           LOADING
+        ================================= */
+
+        .loading {
+            min-height: 230px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            color: var(--muted);
+
+            gap: 14px;
+        }
+
+        .loader {
+            width: 30px;
+            height: 30px;
+
+            border-radius: 50%;
+
+            border:
+                2px solid
+                rgba(255,255,255,.08);
+
+            border-top-color:
+                #a855f7;
+
+            animation:
+                spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =================================
+           EMPTY
+        ================================= */
+
+        .empty {
+            padding: 50px 25px;
+
+            text-align: center;
+
+            border:
+                1px solid var(--border);
+
+            background:
+                rgba(255,255,255,.025);
+
+            border-radius: 22px;
+        }
+
+        .empty-icon {
+            width: 48px;
+            height: 48px;
+
+            margin: 0 auto 15px;
+
+            border-radius: 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #b477ff;
+
+            background:
+                rgba(168,85,247,.08);
+        }
+
+        .empty h2 {
+            font-size: 18px;
+
+            margin-bottom: 8px;
+        }
+
+        .empty p {
+            color: var(--muted);
+
+            font-size: 13px;
+
+            line-height: 1.6;
+        }
+
+        /* =================================
+           POST CARD
+        ================================= */
+
+        .post-card {
+            overflow: hidden;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 23px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.045),
+                    rgba(255,255,255,.018)
+                );
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,.25);
+
+            animation:
+                postIn .35s ease both;
+        }
+
+        @keyframes postIn {
+            from {
+                opacity: 0;
+
+                transform:
+                    translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+            }
+        }
+
+        .post-top {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding:
+                17px 18px 10px;
+        }
+
+        .post-category {
+            color: #b477ff;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            letter-spacing: 1.6px;
+
+            text-transform: uppercase;
+        }
+
+        .post-number {
+            color: #5e5865;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+        .post-content {
+            padding:
+                8px 18px 20px;
+        }
+
+        /*
+           When an external HTML post is loaded,
+           its content goes here.
+        */
+
+        .external-post {
+            color: white;
+        }
+
+        .external-post h1,
+        .external-post h2,
+        .external-post h3 {
+            margin-bottom: 12px;
+        }
+
+        .external-post p {
+            color: #aaa2b0;
+
+            line-height: 1.7;
+
+            font-size: 14px;
+
+            margin-bottom: 10px;
+        }
+
+        .external-post ul,
+        .external-post ol {
+            padding-left: 20px;
+
+            color: #aaa2b0;
+
+            line-height: 1.7;
+
+            font-size: 14px;
+        }
+
+        .external-post img {
+            max-width: 100%;
+
+            border-radius: 14px;
+        }
+
+        .post-bottom {
+            padding:
+                14px 18px 17px;
+
+            border-top:
+                1px solid rgba(255,255,255,.05);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+        }
+
+        .post-info {
+            color: #625c69;
+
+            font-size: 10px;
+        }
+
+        .learn-button {
+            height: 39px;
+
+            padding:
+                0 16px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #6d28d9,
+                    #9333ea
+                );
+
+            cursor: pointer;
+
+            font-size: 11px;
+
+            font-weight: 800;
+        }
+
+        .learn-button:hover {
+            filter: brightness(1.1);
+        }
+
+        /* =================================
+           BOTTOM NAV
+        ================================= */
+
+        .bottom-nav {
+            position: fixed;
+
+            z-index: 30;
+
+            left: 50%;
+
+            bottom: 14px;
+
+            transform:
+                translateX(-50%);
+
+            width:
+                min(430px, calc(100% - 28px));
+
+            height: 67px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.09);
+
+            border-radius: 20px;
+
+            background:
+                rgba(10,7,15,.91);
+
+            backdrop-filter:
+                blur(25px);
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,.5);
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr 1fr;
+        }
+
+        .nav-button {
+            border: none;
+
+            background: none;
+
+            color: #655e6c;
+
+            cursor: pointer;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 5px;
+
+            transition: .2s;
+        }
+
+        .nav-button.active {
+            color: #b477ff;
+        }
+
+        .nav-button:hover {
+            color: #b477ff;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+
+            fill: none;
+
+            stroke: currentColor;
+
+            stroke-width: 1.7;
+
+            stroke-linecap: round;
+
+            stroke-linejoin: round;
+        }
+
+        .nav-label {
+            font-size: 9px;
+
+            font-weight: 750;
+
+            letter-spacing: .4px;
+        }
+
+        /* =================================
+           TOAST
+        ================================= */
+
+        .toast {
+            position: fixed;
+
+            z-index: 100;
+
+            left: 50%;
+
+            bottom: 95px;
+
+            transform:
+                translate(-50%, 20px);
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            padding:
+                11px 15px;
+
+            border-radius: 12px;
+
+            background: #151018;
+
+            border:
+                1px solid var(--border);
+
+            color: #ddd5e2;
+
+            font-size: 11px;
+
+            transition: .3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+
+            transform:
+                translate(-50%, 0);
+        }
+
+        /* =================================
+           RESPONSIVE
+        ================================= */
+
+        @media(min-width: 800px) {
+
+            .feed-area {
+                padding-left: 30px;
+                padding-right: 30px;
+            }
+
+            .bottom-nav {
+                bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ==============================
+         TOP NAVBAR
+    =============================== -->
+
+    <header class="topbar">
+
+        <div class="logo">
+            WAGO
+        </div>
+
+        <button
+            class="profile-button"
+            onclick="goToAccount()"
+            aria-label="Account"
+        >
+
+            <svg viewBox="0 0 24 24">
+
+                <circle
+                    cx="12"
+                    cy="8"
+                    r="3.5"
+                />
+
+                <path
+                    d="M5 21c.7-4 3-6 7-6s6.3 2 7 6"
+                />
+
+            </svg>
+
+        </button>
+
+    </header>
+
+
+    <!-- ==============================
+         SUBJECT / HOBBY FILTERS
+    =============================== -->
+
+    <div class="category-wrapper">
+
+        <div
+            class="categories"
+            id="categories"
+        >
+
+            <button
+                class="category active"
+                data-category="all"
+                onclick="selectCategory('all', this)"
+            >
+                All
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================
+         FEED
+    =============================== -->
+
+    <main
+        class="feed-area"
+        id="feedArea"
+    >
+
+        <div
+            class="feed"
+            id="feed"
+        >
+
+            <div class="welcome">
+
+                <div class="welcome-small">
+                    Your learning space
+                </div>
+
+                <h1>
+                    Welcome back,
+                    <span id="username">
+                        learner
+                    </span>.
+                </h1>
+
+            </div>
+
+            <div class="loading">
+
+                <div class="loader"></div>
+
+                <span>
+                    Loading your feed...
+                </span>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ==============================
+         BOTTOM NAVBAR
+    =============================== -->
+
+    <nav class="bottom-nav">
+
+        <button
+            class="nav-button"
+            onclick="goToSocial()"
+        >
+
+            <svg
+                class="nav-icon"
+                viewBox="0 0 24 24"
+            >
+
+                <path
+                    d="M4 12h16"
+                />
+
+                <path
+                    d="M13 5l7 7-7 7"
+                />
+
+            </svg>
+
+            <span class="nav-label">
+                Social
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-button active"
+            onclick="goHome()"
+        >
+
+            <svg
+                class="nav-icon"
+                viewBox="0 0 24 24"
+            >
+
+                <path
+                    d="M3 11l9-8 9 8"
+                />
+
+                <path
+                    d="M5 10v10h14V10"
+                />
+
+                <path
+                    d="M9 20v-6h6v6"
+                />
+
+            </svg>
+
+            <span class="nav-label">
+                Home
+            </span>
+
+        </button>
+
+
+        <button
+            class="nav-button"
+            onclick="goToAccount()"
+        >
+
+            <svg
+                class="nav-icon"
+                viewBox="0 0 24 24"
+            >
+
+                <circle
+                    cx="12"
+                    cy="8"
+                    r="3.5"
+                />
+
+                <path
+                    d="M5 21c.7-4 3-6 7-6s6.3 2 7 6"
+                />
+
+            </svg>
+
+            <span class="nav-label">
+                Account
+            </span>
+
+        </button>
+
+    </nav>
+
+
+    <div
+        class="toast"
+        id="toast"
+    ></div>
+
+</div>
+
+
+<script>
+
+/* ==================================================
+   SUPABASE
+================================================== */
+
+const SUPABASE_URL =
+    "https://ajpwzvrwoaobrmwjxemb.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_7i4FK4GUMVWKeH3Clj4kKA_Wd6uNVlZ";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* ==================================================
+   USER DATA
+================================================== */
+
+let user = null;
+
+let profile = {
+
+    language: "sk",
+
+    schoolType: null,
+
+    schoolSubtype: null,
+
+    grade: null,
+
+    field: null,
+
+    hobbies: [],
+
+    programmingType: null,
+
+    sports: []
+
+};
+
+
+/* ==================================================
+   CURRENT FILTER
+================================================== */
+
+let currentCategory = "all";
+
+
+/* ==================================================
+   SUBJECT DATABASE
+================================================== */
+
+const SCHOOL_SUBJECTS = {
+
+    zakladna: {
+
+        1: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["prvouka", "Prvouka"],
+            ["anglictina", "Angličtina"]
+        ],
+
+        2: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["prvouka", "Prvouka"],
+            ["anglictina", "Angličtina"]
+        ],
+
+        3: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["prirodoveda", "Prírodoveda"],
+            ["vlastiveda", "Vlastiveda"],
+            ["anglictina", "Angličtina"]
+        ],
+
+        4: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["prirodoveda", "Prírodoveda"],
+            ["vlastiveda", "Vlastiveda"],
+            ["anglictina", "Angličtina"]
+        ],
+
+        5: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["anglictina", "Angličtina"],
+            ["biologia", "Biológia"],
+            ["dejepis", "Dejepis"],
+            ["geografia", "Geografia"],
+            ["informatika", "Informatika"]
+        ],
+
+        6: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["anglictina", "Angličtina"],
+            ["biologia", "Biológia"],
+            ["dejepis", "Dejepis"],
+            ["geografia", "Geografia"],
+            ["fyzika", "Fyzika"],
+            ["informatika", "Informatika"]
+        ],
+
+        7: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["anglictina", "Angličtina"],
+            ["biologia", "Biológia"],
+            ["dejepis", "Dejepis"],
+            ["geografia", "Geografia"],
+            ["fyzika", "Fyzika"],
+            ["chemia", "Chémia"],
+            ["informatika", "Informatika"]
+        ],
+
+        8: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["anglictina", "Angličtina"],
+            ["biologia", "Biológia"],
+            ["dejepis", "Dejepis"],
+            ["geografia", "Geografia"],
+            ["fyzika", "Fyzika"],
+            ["chemia", "Chémia"],
+            ["obcianska", "Občianska náuka"],
+            ["informatika", "Informatika"]
+        ],
+
+        9: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["anglictina", "Angličtina"],
+            ["biologia", "Biológia"],
+            ["dejepis", "Dejepis"],
+            ["geografia", "Geografia"],
+            ["fyzika", "Fyzika"],
+            ["chemia", "Chémia"],
+            ["obcianska", "Občianska náuka"],
+            ["informatika", "Informatika"]
+        ]
+
+    },
+
+
+    stredna: {
+
+        default: [
+            ["slovensky-jazyk", "Slovenský jazyk"],
+            ["matematika", "Matematika"],
+            ["anglictina", "Angličtina"],
+            ["informatika", "Informatika"]
+        ]
+
+    },
+
+
+    vysoka: {
+
+        medicina: [
+            ["anatomiа", "Anatómia"],
+            ["biologia", "Biológia"],
+            ["chemia", "Chémia"],
+            ["fyziologia", "Fyziológia"]
+        ],
+
+        farmacia: [
+            ["chemia", "Chémia"],
+            ["farmakologia", "Farmakológia"],
+            ["biologia", "Biológia"]
+        ],
+
+        prirodoveda: [
+            ["biologia", "Biológia"],
+            ["chemia", "Chémia"],
+            ["fyzika", "Fyzika"]
+        ],
+
+        pravo: [
+            ["ustavne-pravo", "Ústavné právo"],
+            ["obcianske-pravo", "Občianske právo"],
+            ["trestne-pravo", "Trestné právo"]
+        ]
+
+    }
+
+};
+
+
+/* ==================================================
+   INITIALIZE
+================================================== */
+
+async function initialize() {
+
+    const result =
+        await supabaseClient.auth
+            .getUser();
+
+    user = result.data.user;
+
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
+
+
+    readProfile();
+
+
+    setUsername();
+
+
+    createCategories();
+
+
+    await loadFeed();
+
+}
+
+
+/* ==================================================
+   READ PROFILE
+================================================== */
+
+function readProfile() {
+
+    const metadata =
+        user.user_metadata || {};
+
+
+    profile.language =
+        metadata.language || "sk";
+
+
+    profile.schoolType =
+        metadata.school_type || null;
+
+
+    profile.schoolSubtype =
+        metadata.school_subtype || null;
+
+
+    profile.grade =
+        metadata.grade || null;
+
+
+    profile.field =
+        metadata.field || null;
+
+
+    profile.hobbies =
+        Array.isArray(
+            metadata.hobbies
+        )
+        ? metadata.hobbies
+        : [];
+
+
+    profile.programmingType =
+        metadata.programming_type ||
+        null;
+
+
+    profile.sports =
+        Array.isArray(
+            metadata.sports
+        )
+        ? metadata.sports
+        : [];
+
+}
+
+
+/* ==================================================
+   USERNAME
+================================================== */
+
+function setUsername() {
+
+    const metadata =
+        user.user_metadata || {};
+
+
+    const name =
+        metadata.username ||
+        metadata.name ||
+        "learner";
+
+
+    document.getElementById(
+        "username"
+    ).textContent = name;
+
+}
+
+
+/* ==================================================
+   GET SCHOOL SUBJECTS
+================================================== */
+
+function getSchoolSubjects() {
+
+    const type =
+        profile.schoolType;
+
+
+    if (!type) {
+
+        return [];
+
+    }
+
+
+    if (
+        type === "zakladna"
+    ) {
+
+        return (
+            SCHOOL_SUBJECTS
+                .zakladna[
+                    Number(profile.grade)
+                ] || []
+        );
+
+    }
+
+
+    if (
+        type === "stredna"
+    ) {
+
+        return (
+            SCHOOL_SUBJECTS
+                .stredna
+                .default
+        );
+
+    }
+
+
+    if (
+        type === "vysoka"
+    ) {
+
+        return (
+            SCHOOL_SUBJECTS
+                .vysoka[
+                    profile.field
+                ] || []
+        );
+
+    }
+
+
+    /*
+        Prijímačky will later have
+        their own subject system.
+    */
+
+    if (
+        type === "prijimacky"
+    ) {
+
+        return [
+
+            ["matematika", "Matematika"],
+
+            ["slovensky-jazyk", "Slovenský jazyk"]
+
+        ];
+
+    }
+
+
+    return [];
+
+}
+
+
+/* ==================================================
+   CREATE CATEGORY BAR
+================================================== */
+
+function createCategories() {
+
+    const container =
+        document.getElementById(
+            "categories"
+        );
+
+
+    container.innerHTML = "";
+
+
+    addCategory(
+        "all",
+        "All",
+        container
+    );
+
+
+    const subjects =
+        getSchoolSubjects();
+
+
+    subjects.forEach(
+        ([id, title]) => {
+
+            addCategory(
+                "subject:" + id,
+                title,
+                container
+            );
+
+        }
+    );
+
+
+    /*
+        Programming
+    */
+
+    if (
+        profile.hobbies
+            .includes("programming")
+    ) {
+
+        let title =
+            "Programming";
+
+
+        if (
+            profile.programmingType ===
+            "websites"
+        ) {
+
+            title =
+                "Programming · Web";
+
+        }
+
+
+        if (
+            profile.programmingType ===
+            "apps"
+        ) {
+
+            title =
+                "Programming · Apps";
+
+        }
+
+
+        addCategory(
+            "programming",
+            title,
+            container
+        );
+
+    }
+
+
+    /*
+        Sport
+    */
+
+    if (
+        profile.hobbies
+            .includes("sport")
+    ) {
+
+        addCategory(
+            "sport",
+            "Sport",
+            container
+        );
+
+
+        /*
+            Individual sports
+            appear as extra filters.
+        */
+
+        profile.sports.forEach(
+            sport => {
+
+                addCategory(
+                    "sport:" + sport,
+                    sportName(sport),
+                    container
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   ADD CATEGORY
+================================================== */
+
+function addCategory(
+    id,
+    title,
+    container
+) {
+
+    const button =
+        document.createElement(
+            "button"
+        );
+
+
+    button.className =
+        "category";
+
+
+    if (
+        id === "all"
+    ) {
+
+        button.classList.add(
+            "active"
+        );
+
+    }
+
+
+    button.dataset.category =
+        id;
+
+
+    button.textContent =
+        title;
+
+
+    button.onclick = () => {
+
+        selectCategory(
+            id,
+            button
+        );
+
+    };
+
+
+    container.appendChild(
+        button
+    );
+
+}
+
+
+/* ==================================================
+   SPORT NAME
+================================================== */
+
+function sportName(
+    id
+) {
+
+    const names = {
+
+        football: "Futbal",
+
+        basketball: "Basketbal",
+
+        tennis: "Tenis",
+
+        volleyball: "Volejbal",
+
+        hockey: "Hokej",
+
+        swimming: "Plávanie",
+
+        athletics: "Atletika",
+
+        gymnastics: "Gymnastika",
+
+        cycling: "Cyklistika",
+
+        skiing: "Lyžovanie",
+
+        running: "Beh",
+
+        martial_arts:
+            "Bojové športy"
+
+    };
+
+
+    return names[id] || id;
+
+}
+
+
+/* ==================================================
+   SELECT CATEGORY
+================================================== */
+
+async function selectCategory(
+    category,
+    button
+) {
+
+    currentCategory =
+        category;
+
+
+    document
+        .querySelectorAll(
+            ".category"
+        )
+        .forEach(item => {
+
+            item.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    button.classList.add(
+        "active"
+    );
+
+
+    await loadFeed();
+
+
+    document
+        .getElementById(
+            "feedArea"
+        )
+        .scrollTo({
+
+            top: 0,
+
+            behavior: "smooth"
+
+        });
+
+}
+
+
+/* ==================================================
+   LOAD FEED
+================================================== */
+
+async function loadFeed() {
+
+    const feed =
+        document.getElementById(
+            "feed"
+        );
+
+
+    /*
+        Keep welcome header.
+    */
+
+    feed.innerHTML = `
+
+        <div class="welcome">
+
+            <div class="welcome-small">
+                Your learning space
+            </div>
+
+            <h1>
+                Welcome back,
+                <span>
+                    ${escapeHTML(
+                        user?.user_metadata
+                            ?.username ||
+                        "learner"
+                    )}
+                </span>.
+            </h1>
+
+        </div>
+
+        <div class="loading">
+
+            <div class="loader"></div>
+
+            <span>
+                Loading your feed...
+            </span>
+
+        </div>
+    `;
+
+
+    const posts =
+        getPostsForCategory();
+
+
+    if (
+        posts.length === 0
+    ) {
+
+        showEmptyFeed();
+
+        return;
+
+    }
+
+
+    /*
+        Load the external HTML
+        files individually.
+    */
+
+    const loaded =
+        [];
+
+
+    for (
+        const post of posts
+    ) {
+
+        try {
+
+            const response =
+                await fetch(
+                    post.file
+                );
+
+
+            if (
+                !response.ok
+            ) {
+
+                continue;
+
+            }
+
+
+            const html =
+                await response.text();
+
+
+            loaded.push({
+
+                ...post,
+
+                html
+
+            });
+
+        }
+        catch(error) {
+
+            console.warn(
+                "Could not load:",
+                post.file,
+                error
+            );
+
+        }
+
+    }
+
+
+    if (
+        loaded.length === 0
+    ) {
+
+        showEmptyFeed(
+            "Zatiaľ tu nemáš žiadne príspevky."
+        );
+
+        return;
+
+    }
+
+
+    renderPosts(
+        loaded
+    );
+
+}
+
+
+/* ==================================================
+   GET POSTS
+================================================== */
+
+function getPostsForCategory() {
+
+    /*
+        This is the bridge between the
+        user's profile and the HTML files.
+
+        Later this can be replaced by a
+        database-generated manifest.
+    */
+
+
+    const posts = [];
+
+
+    /*
+        ALL / SCHOOL
+    */
+
+    if (
+        currentCategory === "all" ||
+        currentCategory.startsWith(
+            "subject:"
+        )
+    ) {
+
+        const subjects =
+            getSchoolSubjects();
+
+
+        subjects.forEach(
+            ([id, title]) => {
+
+                if (
+                    currentCategory !==
+                    "all" &&
+                    currentCategory !==
+                    "subject:" + id
+                ) {
+
+                    return;
+
+                }
+
+
+                /*
+                    Example:
+                    posts/school/slovak/
+                    zakladna/5/matematika/
+                    post-01.html
+                */
+
+                posts.push({
+
+                    category: title,
+
+                    type: "school",
+
+                    file:
+                        buildSchoolPath(
+                            id,
+                            "post-01.html"
+                        )
+
+                });
+
+
+                posts.push({
+
+                    category: title,
+
+                    type: "school",
+
+                    file:
+                        buildSchoolPath(
+                            id,
+                            "post-02.html"
+                        )
+
+                });
+
+            }
+        );
+
+    }
+
+
+    /*
+        PROGRAMMING
+    */
+
+    if (
+        currentCategory === "all" ||
+        currentCategory === "programming"
+    ) {
+
+        if (
+            profile.hobbies
+                .includes("programming")
+        ) {
+
+            const type =
+                profile.programmingType ===
+                "apps"
+                ? "apps"
+                : "websites";
+
+
+            posts.push({
+
+                category:
+                    "Programming",
+
+                type:
+                    "programming",
+
+                file:
+                    `posts/programming/${type}/post-01.html`
+
+            });
+
+
+            posts.push({
+
+                category:
+                    "Programming",
+
+                type:
+                    "programming",
+
+                file:
+                    `posts/programming/${type}/post-02.html`
+
+            });
+
+        }
+
+    }
+
+
+    /*
+        SPORT
+    */
+
+    if (
+        currentCategory === "all" ||
+        currentCategory === "sport"
+    ) {
+
+        if (
+            profile.hobbies
+                .includes("sport")
+        ) {
+
+            profile.sports.forEach(
+                sport => {
+
+                    posts.push({
+
+                        category:
+                            sportName(
+                                sport
+                            ),
+
+                        type:
+                            "sport",
+
+                        file:
+                            `posts/sport/${sport}/post-01.html`
+
+                    });
+
+                }
+            );
+
+        }
+
+    }
+
+
+    /*
+        INDIVIDUAL SPORT FILTER
+    */
+
+    if (
+        currentCategory.startsWith(
+            "sport:"
+        )
+    ) {
+
+        const sport =
+            currentCategory
+                .replace(
+                    "sport:",
+                    ""
+                );
+
+
+        if (
+            profile.sports
+                .includes(sport)
+        ) {
+
+            posts.push({
+
+                category:
+                    sportName(sport),
+
+                type:
+                    "sport",
+
+                file:
+                    `posts/sport/${sport}/post-01.html`
+
+            });
+
+
+            posts.push({
+
+                category:
+                    sportName(sport),
+
+                type:
+                    "sport",
+
+                file:
+                    `posts/sport/${sport}/post-02.html`
+
+            });
+
+        }
+
+    }
+
+
+    return posts;
+
+}
+
+
+/* ==================================================
+   SCHOOL PATH
+================================================== */
+
+function buildSchoolPath(
+    subject,
+    file
+) {
+
+    const type =
+        profile.schoolType ||
+        "zakladna";
+
+
+    const grade =
+        Number(profile.grade) || 1;
+
+
+    /*
+        This keeps paths predictable.
+
+        Example:
+        posts/school/slovak/
+        zakladna/5/matematika/post-01.html
+    */
+
+    return [
+        "posts",
+        "school",
+        "slovak",
+        type,
+        grade,
+        subject,
+        file
+    ].join("/");
+
+}
+
+
+/* ==================================================
+   RENDER POSTS
+================================================== */
+
+function renderPosts(
+    posts
+) {
+
+    const feed =
+        document.getElementById(
+            "feed"
+        );
+
+
+    feed.innerHTML = `
+
+        <div class="welcome">
+
+            <div class="welcome-small">
+                Your learning space
+            </div>
+
+            <h1>
+                Ready to learn?
+            </h1>
+
+        </div>
+
+    `;
+
+
+    posts.forEach(
+        (post, index) => {
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "post-card";
+
+
+            card.style.animationDelay =
+                (index * 0.05) + "s";
+
+
+            /*
+                Extract body from external
+                HTML so the whole document
+                doesn't get nested inside
+                our page.
+            */
+
+            const content =
+                extractPostContent(
+                    post.html
+                );
+
+
+            card.innerHTML = `
+
+                <div class="post-top">
+
+                    <div class="post-category">
+                        ${escapeHTML(
+                            post.category
+                        )}
+                    </div>
+
+                    <div class="post-number">
+                        ${String(
+                            index + 1
+                        ).padStart(2, "0")}
+                    </div>
+
+                </div>
+
+
+                <div class="post-content">
+
+                    <div class="external-post">
+                        ${content}
+                    </div>
+
+                </div>
+
+
+                <div class="post-bottom">
+
+                    <div class="post-info">
+                        3 things · recall · quiz
+                    </div>
+
+                    <button
+                        class="learn-button"
+                        onclick="openPost(
+                            '${escapeAttribute(
+                                post.file
+                            )}'
+                        )"
+                    >
+                        Learn →
+                    </button>
+
+                </div>
+
+            `;
+
+
+            feed.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   EXTRACT BODY
+================================================== */
+
+function extractPostContent(
+    html
+) {
+
+    const parser =
+        new DOMParser();
+
+
+    const document =
+        parser.parseFromString(
+            html,
+            "text/html"
+        );
+
+
+    /*
+        Prefer an element explicitly
+        marked as .wago-post.
+    */
+
+    const marked =
+        document.querySelector(
+            ".wago-post"
+        );
+
+
+    if (marked) {
+
+        return marked.innerHTML;
+
+    }
+
+
+    /*
+        Otherwise use body.
+    */
+
+    if (
+        document.body
+    ) {
+
+        return document.body.innerHTML;
+
+    }
+
+
+    return html;
+
+}
+
+
+/* ==================================================
+   OPEN POST
+================================================== */
+
+function openPost(
+    file
+) {
+
+    /*
+        The individual HTML page
+        becomes the full learning
+        experience.
+
+        This is where the 3 facts,
+        recall and quiz can live.
+    */
+
+    window.location.href =
+        file;
+
+}
+
+
+/* ==================================================
+   EMPTY FEED
+================================================== */
+
+function showEmptyFeed(
+    customText
+) {
+
+    const feed =
+        document.getElementById(
+            "feed"
+        );
+
+
+    feed.innerHTML = `
+
+        <div class="welcome">
+
+            <div class="welcome-small">
+                Your learning space
+            </div>
+
+            <h1>
+                Ready to learn?
+            </h1>
+
+        </div>
+
+
+        <div class="empty">
+
+            <div class="empty-icon">
+
+                <svg
+                    width="23"
+                    height="23"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                >
+
+                    <path
+                        d="M4 5h16v14H4z"
+                    />
+
+                    <path
+                        d="M8 9h8"
+                    />
+
+                    <path
+                        d="M8 13h5"
+                    />
+
+                </svg>
+
+            </div>
+
+            <h2>
+                Feed je zatiaľ prázdny.
+            </h2>
+
+            <p>
+                ${customText ||
+                "Keď pridáme prvé learning posty, objavia sa tu."}
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ==================================================
+   SWIPE NAVIGATION
+================================================== */
+
+let touchStartX = 0;
+
+let touchStartY = 0;
+
+
+document.addEventListener(
+    "touchstart",
+    event => {
+
+        if (
+            event.touches.length !== 1
+        ) return;
+
+
+        touchStartX =
+            event.touches[0].clientX;
+
+
+        touchStartY =
+            event.touches[0].clientY;
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+document.addEventListener(
+    "touchend",
+    event => {
+
+        if (
+            !touchStartX
+        ) return;
+
+
+        const endX =
+            event.changedTouches[0]
+                .clientX;
+
+
+        const endY =
+            event.changedTouches[0]
+                .clientY;
+
+
+        const diffX =
+            endX - touchStartX;
+
+
+        const diffY =
+            endY - touchStartY;
+
+
+        /*
+            Ignore vertical scrolling.
+        */
+
+        if (
+            Math.abs(diffX) < 80 ||
+            Math.abs(diffX) <
+            Math.abs(diffY)
+        ) {
+
+            touchStartX = 0;
+
+            return;
+
+        }
+
+
+        /*
+            Swipe LEFT → Social
+        */
+
+        if (
+            diffX < 0
+        ) {
+
+            goToSocial();
+
+        }
+
+
+        /*
+            Swipe RIGHT → Account
+        */
+
+        if (
+            diffX > 0
+        ) {
+
+            goToAccount();
+
+        }
+
+
+        touchStartX = 0;
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* ==================================================
+   NAVIGATION
+================================================== */
+
+function goHome() {
+
+    window.location.href =
+        "home.html";
+
+}
+
+
+function goToSocial() {
+
+    window.location.href =
+        "social.html";
+
+}
+
+
+function goToAccount() {
+
+    window.location.href =
+        "account.html";
+
+}
+
+
+/* ==================================================
+   ESCAPE HTML
+================================================== */
+
+function escapeHTML(
+    value
+) {
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* ==================================================
+   ESCAPE ATTRIBUTE
+================================================== */
+
+function escapeAttribute(
+    value
+) {
+
+    return String(value)
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /'/g,
+            "\\'"
+        );
+
+}
+
+
+/* ==================================================
+   START
+================================================== */
+
+initialize();
+
+</script>
+
+</body>
+</html>
