@@ -1,94 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Wago — Login</title>
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Supabase JS -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
 
   <style>
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
+
     body {
+
       min-height: 100vh;
+
       display: flex;
+
       align-items: center;
       justify-content: center;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      color: white;
 
       background:
         radial-gradient(
           circle at center,
-          rgba(126, 34, 206, 0.22),
-          transparent 40%
+          rgba(126, 34, 206, 0.23),
+          transparent 42%
         ),
         #030205;
 
-      font-family: Arial, Helvetica, sans-serif;
-      color: white;
+      overflow: hidden;
     }
 
+
+    /* =========================
+       PURPLE GLOW
+    ========================= */
+
     .glow {
+
       position: fixed;
 
-      width: 450px;
-      height: 450px;
+      width: 480px;
+      height: 480px;
 
       border-radius: 50%;
 
       background: #7c3aed;
 
-      filter: blur(160px);
+      filter: blur(170px);
 
       opacity: .13;
 
       pointer-events: none;
+
+      animation:
+        glowPulse 4s ease-in-out infinite alternate;
     }
 
+
+    @keyframes glowPulse {
+
+      from {
+        transform: scale(.85);
+        opacity: .08;
+      }
+
+      to {
+        transform: scale(1.15);
+        opacity: .17;
+      }
+
+    }
+
+
+    /* =========================
+       WRAPPER
+    ========================= */
+
     .wrapper {
+
       position: relative;
+
       z-index: 2;
 
       width: 430px;
+
       max-width: 92%;
     }
 
+
     /* =========================
-       TOGGLE
+       LOGIN / SIGN UP TOGGLE
     ========================= */
 
     .toggle {
+
       position: relative;
 
       display: flex;
 
       width: 230px;
+
       height: 48px;
 
-      margin: 0 auto 18px;
+      margin:
+        0 auto
+        18px;
 
       padding: 4px;
 
       border-radius: 14px;
 
-      background: rgba(255,255,255,.055);
+      background:
+        rgba(255,255,255,.055);
 
-      border: 1px solid rgba(255,255,255,.08);
+      border:
+        1px solid
+        rgba(255,255,255,.08);
+
+      box-shadow:
+        0 10px 30px
+        rgba(0,0,0,.25);
     }
 
+
     .toggle-slider {
+
       position: absolute;
 
       top: 4px;
       left: 4px;
 
-      width: calc(50% - 4px);
+      width:
+        calc(50% - 4px);
+
       height: 38px;
 
       border-radius: 10px;
@@ -100,81 +170,139 @@
           #9333ea
         );
 
+      box-shadow:
+        0 5px 18px
+        rgba(124,58,237,.35);
+
       transition:
-        transform .35s cubic-bezier(.65,0,.35,1);
+        transform
+        .35s
+        cubic-bezier(.65,0,.35,1);
     }
 
-    .toggle.signup .toggle-slider {
-      transform: translateX(100%);
+
+    .toggle.signup
+    .toggle-slider {
+
+      transform:
+        translateX(100%);
     }
+
 
     .toggle button {
+
       position: relative;
+
       z-index: 2;
 
       width: 50%;
 
       border: none;
+
       background: transparent;
 
       color: #817987;
 
       font-size: 12px;
+
       font-weight: 800;
+
+      letter-spacing: .5px;
 
       cursor: pointer;
 
       transition: .25s;
     }
 
+
     .toggle button.active {
+
       color: white;
     }
 
+
     /* =========================
-       WINDOW
+       MAIN WINDOW
     ========================= */
 
     .window {
+
       width: 100%;
+
+      min-height: 560px;
 
       padding: 42px;
 
-      border-radius: 24px;
+      border-radius: 26px;
 
       background:
         rgba(10,7,15,.94);
 
       border:
-        1px solid rgba(255,255,255,.08);
+        1px solid
+        rgba(255,255,255,.08);
 
       box-shadow:
-        0 30px 90px rgba(0,0,0,.55),
-        0 0 50px rgba(124,58,237,.08);
 
-      backdrop-filter: blur(20px);
+        0 30px 90px
+        rgba(0,0,0,.58),
+
+        0 0 60px
+        rgba(124,58,237,.08);
+
+      backdrop-filter:
+        blur(22px);
+
+      overflow: hidden;
     }
+
+
+    /* =========================
+       FORM ANIMATION
+    ========================= */
 
     .form {
-      animation: formIn .4s ease;
+
+      animation:
+        formIn
+        .4s
+        ease;
     }
 
+
     @keyframes formIn {
+
       from {
+
         opacity: 0;
-        transform: translateY(10px);
+
+        transform:
+          translateY(12px);
+
       }
 
       to {
+
         opacity: 1;
-        transform: translateY(0);
+
+        transform:
+          translateY(0);
+
       }
+
     }
 
+
+    /* =========================
+       BRAND
+    ========================= */
+
     .brand {
+
       color: #a855f7;
 
       font-size: 13px;
+
       font-weight: 900;
 
       letter-spacing: 3px;
@@ -182,7 +310,9 @@
       margin-bottom: 17px;
     }
 
+
     h1 {
+
       font-size: 36px;
 
       letter-spacing: -1.7px;
@@ -190,25 +320,31 @@
       margin-bottom: 10px;
     }
 
+
     .subtitle {
+
       color: #77717f;
 
       font-size: 14px;
 
       line-height: 1.6;
 
-      margin-bottom: 28px;
+      margin-bottom: 29px;
     }
+
 
     /* =========================
        INPUTS
     ========================= */
 
     .field {
+
       margin-bottom: 16px;
     }
 
+
     .field label {
+
       display: block;
 
       margin-bottom: 8px;
@@ -216,19 +352,25 @@
       color: #aaa2b2;
 
       font-size: 12px;
+
       font-weight: 600;
     }
 
+
     .field input {
+
       width: 100%;
+
       height: 51px;
 
-      padding: 0 15px;
+      padding:
+        0 15px;
 
       border-radius: 12px;
 
       border:
-        1px solid rgba(255,255,255,.08);
+        1px solid
+        rgba(255,255,255,.08);
 
       outline: none;
 
@@ -242,31 +384,41 @@
       transition: .25s;
     }
 
+
     .field input::placeholder {
+
       color: #514b58;
     }
 
+
     .field input:focus {
-      border-color: #9333ea;
+
+      border-color:
+        #9333ea;
 
       background:
         rgba(147,51,234,.06);
 
       box-shadow:
-        0 0 0 3px rgba(147,51,234,.08);
+        0 0 0 3px
+        rgba(147,51,234,.08);
     }
+
 
     /* =========================
        PRIMARY BUTTON
     ========================= */
 
     .primary {
+
       width: 100%;
+
       height: 51px;
 
-      margin-top: 5px;
+      margin-top: 6px;
 
       border: none;
+
       border-radius: 12px;
 
       background:
@@ -280,43 +432,65 @@
       color: white;
 
       font-size: 14px;
+
       font-weight: 800;
 
       cursor: pointer;
 
       box-shadow:
-        0 10px 25px rgba(124,58,237,.25);
+        0 10px 28px
+        rgba(124,58,237,.25);
 
       transition: .25s;
     }
 
+
     .primary:hover {
-      transform: translateY(-2px);
+
+      transform:
+        translateY(-2px);
 
       box-shadow:
-        0 15px 35px rgba(124,58,237,.38);
+        0 15px 35px
+        rgba(124,58,237,.38);
     }
+
+
+    .primary:active {
+
+      transform:
+        scale(.98);
+    }
+
 
     /* =========================
        DIVIDER
     ========================= */
 
     .divider {
+
       display: flex;
+
       align-items: center;
 
       gap: 12px;
 
-      margin: 24px 0;
+      margin:
+        24px 0;
 
       color: #514b58;
 
       font-size: 10px;
+
       font-weight: 700;
+
+      letter-spacing: .5px;
     }
+
 
     .divider::before,
     .divider::after {
+
       content: "";
 
       flex: 1;
@@ -327,24 +501,30 @@
         rgba(255,255,255,.07);
     }
 
+
     /* =========================
        SOCIAL BUTTONS
     ========================= */
 
     .social-buttons {
+
       display: grid;
 
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns:
+        1fr 1fr;
 
       gap: 10px;
     }
 
+
     .social {
+
       height: 48px;
 
       display: flex;
 
       align-items: center;
+
       justify-content: center;
 
       gap: 9px;
@@ -352,7 +532,8 @@
       border-radius: 12px;
 
       border:
-        1px solid rgba(255,255,255,.09);
+        1px solid
+        rgba(255,255,255,.09);
 
       background:
         rgba(255,255,255,.035);
@@ -360,6 +541,7 @@
       color: white;
 
       font-size: 12px;
+
       font-weight: 700;
 
       cursor: pointer;
@@ -367,34 +549,45 @@
       transition: .25s;
     }
 
+
     .social:hover {
+
       background:
         rgba(255,255,255,.08);
 
       border-color:
         rgba(168,85,247,.45);
 
-      transform: translateY(-1px);
+      transform:
+        translateY(-1px);
     }
 
+
     .google-icon {
-      color: #4285F4;
+
+      color:
+        #4285F4;
 
       font-size: 17px;
+
       font-weight: 900;
     }
 
+
     .apple-icon {
+
       color: white;
 
       font-size: 18px;
     }
+
 
     /* =========================
        MESSAGE
     ========================= */
 
     #message {
+
       min-height: 20px;
 
       margin-top: 17px;
@@ -404,13 +597,17 @@
       font-size: 12px;
 
       color: #a855f7;
+
+      line-height: 1.5;
     }
+
 
     /* =========================
        FOOTER
     ========================= */
 
     .footer {
+
       margin-top: 18px;
 
       text-align: center;
@@ -420,35 +617,93 @@
       font-size: 12px;
     }
 
+
     .footer span {
+
       color: #a855f7;
 
       cursor: pointer;
+
+      transition: .2s;
     }
+
+
+    .footer span:hover {
+
+      color:
+        #c084fc;
+    }
+
+
+    /* =========================
+       LOADING
+    ========================= */
+
+    .loading {
+
+      pointer-events: none;
+
+      opacity: .65;
+    }
+
+
+    /* =========================
+       MOBILE
+    ========================= */
 
     @media (max-width: 500px) {
-      .window {
-        padding: 32px 25px;
+
+      .wrapper {
+
+        width: 94%;
       }
 
-      h1 {
-        font-size: 32px;
+
+      .window {
+
+        padding:
+          32px 25px;
+
+        min-height:
+          540px;
       }
+
+
+      h1 {
+
+        font-size:
+          32px;
+      }
+
     }
+
   </style>
+
 </head>
+
 
 <body>
 
+
   <div class="glow"></div>
+
 
   <div class="wrapper">
 
-    <!-- LOGIN / SIGN UP TOGGLE -->
 
-    <div class="toggle" id="toggle">
+    <!-- =========================
+         LOGIN / SIGN UP TOGGLE
+    ========================= -->
 
-      <div class="toggle-slider"></div>
+    <div
+      class="toggle"
+      id="toggle"
+    >
+
+      <div
+        class="toggle-slider"
+      ></div>
+
 
       <button
         id="loginTab"
@@ -457,6 +712,7 @@
       >
         LOGIN
       </button>
+
 
       <button
         id="signupTab"
@@ -468,15 +724,23 @@
     </div>
 
 
-    <!-- MAIN WINDOW -->
+    <!-- =========================
+         MAIN WINDOW
+    ========================= -->
 
     <div class="window">
 
-      <div id="formContainer"></div>
+      <div
+        id="formContainer"
+      ></div>
 
-      <div id="message"></div>
+
+      <div
+        id="message"
+      ></div>
 
     </div>
+
 
   </div>
 
@@ -484,7 +748,7 @@
   <script>
 
     /* =====================================
-       SUPABASE
+       SUPABASE CONFIG
     ===================================== */
 
     const SUPABASE_URL =
@@ -492,6 +756,7 @@
 
     const SUPABASE_KEY =
       "sb_publishable_7i4FK4GUMVWKeH3Clj4kKA_Wd6uNVlZ";
+
 
     const supabaseClient =
       window.supabase.createClient(
@@ -505,19 +770,44 @@
     ===================================== */
 
     const toggle =
-      document.getElementById("toggle");
+      document.getElementById(
+        "toggle"
+      );
 
     const loginTab =
-      document.getElementById("loginTab");
+      document.getElementById(
+        "loginTab"
+      );
 
     const signupTab =
-      document.getElementById("signupTab");
+      document.getElementById(
+        "signupTab"
+      );
 
     const formContainer =
-      document.getElementById("formContainer");
+      document.getElementById(
+        "formContainer"
+      );
 
     const message =
-      document.getElementById("message");
+      document.getElementById(
+        "message"
+      );
+
+
+    /* =====================================
+       MESSAGE
+    ===================================== */
+
+    function showMessage(
+      text,
+      color = "#a855f7"
+    ) {
+
+      message.textContent = text;
+
+      message.style.color = color;
+    }
 
 
     /* =====================================
@@ -526,12 +816,22 @@
 
     function showLogin() {
 
-      toggle.classList.remove("signup");
+      toggle.classList.remove(
+        "signup"
+      );
 
-      loginTab.classList.add("active");
-      signupTab.classList.remove("active");
+
+      loginTab.classList.add(
+        "active"
+      );
+
+      signupTab.classList.remove(
+        "active"
+      );
+
 
       message.textContent = "";
+
 
       formContainer.innerHTML = `
 
@@ -541,9 +841,11 @@
             WAGO
           </div>
 
+
           <h1>
             Welcome back.
           </h1>
+
 
           <p class="subtitle">
             Sign in to your Wago account
@@ -551,7 +853,9 @@
           </p>
 
 
-          <form onsubmit="login(event)">
+          <form
+            onsubmit="login(event)"
+          >
 
             <div class="field">
 
@@ -563,6 +867,7 @@
                 id="loginEmail"
                 type="email"
                 placeholder="you@example.com"
+                autocomplete="email"
                 required
               >
 
@@ -579,6 +884,7 @@
                 id="loginPassword"
                 type="password"
                 placeholder="Your password"
+                autocomplete="current-password"
                 required
               >
 
@@ -587,6 +893,7 @@
 
             <button
               class="primary"
+              id="loginButton"
               type="submit"
             >
               Sign in
@@ -606,11 +913,15 @@
               class="social"
               onclick="loginWithGoogle()"
             >
-              <span class="google-icon">
+
+              <span
+                class="google-icon"
+              >
                 G
               </span>
 
               Google
+
             </button>
 
 
@@ -618,11 +929,15 @@
               class="social"
               onclick="loginWithApple()"
             >
-              <span class="apple-icon">
+
+              <span
+                class="apple-icon"
+              >
                 
               </span>
 
               Apple
+
             </button>
 
           </div>
@@ -632,7 +947,9 @@
 
             New to Wago?
 
-            <span onclick="showSignup()">
+            <span
+              onclick="showSignup()"
+            >
               Create an account
             </span>
 
@@ -650,12 +967,22 @@
 
     function showSignup() {
 
-      toggle.classList.add("signup");
+      toggle.classList.add(
+        "signup"
+      );
 
-      loginTab.classList.remove("active");
-      signupTab.classList.add("active");
+
+      loginTab.classList.remove(
+        "active"
+      );
+
+      signupTab.classList.add(
+        "active"
+      );
+
 
       message.textContent = "";
+
 
       formContainer.innerHTML = `
 
@@ -665,17 +992,21 @@
             WAGO
           </div>
 
+
           <h1>
             Create account.
           </h1>
 
+
           <p class="subtitle">
-            Join Wago and start your journey
-            today.
+            Join Wago and start your
+            journey today.
           </p>
 
 
-          <form onsubmit="signup(event)">
+          <form
+            onsubmit="signup(event)"
+          >
 
             <div class="field">
 
@@ -687,6 +1018,7 @@
                 id="signupName"
                 type="text"
                 placeholder="Your name"
+                autocomplete="name"
                 required
               >
 
@@ -703,6 +1035,7 @@
                 id="signupEmail"
                 type="email"
                 placeholder="you@example.com"
+                autocomplete="email"
                 required
               >
 
@@ -719,6 +1052,7 @@
                 id="signupPassword"
                 type="password"
                 placeholder="Create a password"
+                autocomplete="new-password"
                 minlength="6"
                 required
               >
@@ -728,6 +1062,7 @@
 
             <button
               class="primary"
+              id="signupButton"
               type="submit"
             >
               Create account
@@ -747,11 +1082,15 @@
               class="social"
               onclick="loginWithGoogle()"
             >
-              <span class="google-icon">
+
+              <span
+                class="google-icon"
+              >
                 G
               </span>
 
               Google
+
             </button>
 
 
@@ -759,11 +1098,15 @@
               class="social"
               onclick="loginWithApple()"
             >
-              <span class="apple-icon">
+
+              <span
+                class="apple-icon"
+              >
                 
               </span>
 
               Apple
+
             </button>
 
           </div>
@@ -773,7 +1116,9 @@
 
             Already have an account?
 
-            <span onclick="showLogin()">
+            <span
+              onclick="showLogin()"
+            >
               Sign in
             </span>
 
@@ -786,25 +1131,14 @@
 
 
     /* =====================================
-       EMAIL LOGIN
+       REDIRECT AFTER AUTH
     ===================================== */
 
-    async function login(event) {
+    async function redirectAfterAuth() {
 
-      event.preventDefault();
-
-      message.textContent =
-        "Signing you in...";
-
-      const email =
-        document.getElementById(
-          "loginEmail"
-        ).value;
-
-      const password =
-        document.getElementById(
-          "loginPassword"
-        ).value;
+      showMessage(
+        "Checking your account..."
+      );
 
 
       const {
@@ -812,32 +1146,213 @@
         error
       } =
         await supabaseClient.auth
-          .signInWithPassword({
-            email: email,
-            password: password
-          });
+          .getUser();
 
 
-      if (error) {
+      if (error || !data.user) {
 
-        message.textContent =
-          error.message;
+        console.error(error);
+
+        showMessage(
+          "We couldn't verify your account.",
+          "#ef4444"
+        );
 
         return;
       }
 
 
-      message.textContent =
-        "Login successful!";
+      const user =
+        data.user;
 
 
-      /*
-        Change this to the page
-        you want after login.
-      */
+      /* =================================
+         FIND PROFILE
+      ================================= */
+
+      let {
+        data: profile,
+        error: profileError
+      } =
+        await supabaseClient
+          .from("profiles")
+          .select(
+            "has_completed_onboarding"
+          )
+          .eq("id", user.id)
+          .maybeSingle();
+
+
+      /* =================================
+         PROFILE DOES NOT EXIST
+      ================================= */
+
+      if (
+        !profile &&
+        !profileError
+      ) {
+
+        const {
+          data: newProfile,
+          error: createError
+        } =
+          await supabaseClient
+            .from("profiles")
+            .insert({
+
+              id: user.id,
+
+              has_completed_onboarding:
+                false
+
+            })
+            .select()
+            .single();
+
+
+        if (createError) {
+
+          console.error(
+            createError
+          );
+
+          showMessage(
+            "Could not create your profile.",
+            "#ef4444"
+          );
+
+          return;
+        }
+
+
+        profile =
+          newProfile;
+      }
+
+
+      /* =================================
+         PROFILE ERROR
+      ================================= */
+
+      if (profileError) {
+
+        console.error(
+          profileError
+        );
+
+        showMessage(
+          "Could not load your profile.",
+          "#ef4444"
+        );
+
+        return;
+      }
+
+
+      /* =================================
+         FIRST TIME
+      ================================= */
+
+      if (
+        !profile.has_completed_onboarding
+      ) {
+
+        window.location.href =
+          "main.html";
+
+        return;
+      }
+
+
+      /* =================================
+         RETURNING USER
+      ================================= */
 
       window.location.href =
-        "main.html";
+        "home.html";
+    }
+
+
+    /* =====================================
+       EMAIL LOGIN
+    ===================================== */
+
+    async function login(event) {
+
+      event.preventDefault();
+
+
+      const email =
+        document.getElementById(
+          "loginEmail"
+        ).value.trim();
+
+
+      const password =
+        document.getElementById(
+          "loginPassword"
+        ).value;
+
+
+      showMessage(
+        "Signing you in..."
+      );
+
+
+      const button =
+        document.getElementById(
+          "loginButton"
+        );
+
+
+      if (button) {
+
+        button.disabled =
+          true;
+
+        button.classList.add(
+          "loading"
+        );
+
+      }
+
+
+      const {
+        error
+      } =
+        await supabaseClient.auth
+          .signInWithPassword({
+
+            email,
+            password
+
+          });
+
+
+      if (error) {
+
+        showMessage(
+          error.message,
+          "#ef4444"
+        );
+
+
+        if (button) {
+
+          button.disabled =
+            false;
+
+          button.classList.remove(
+            "loading"
+          );
+
+        }
+
+        return;
+      }
+
+
+      await redirectAfterAuth();
     }
 
 
@@ -849,24 +1364,46 @@
 
       event.preventDefault();
 
-      message.textContent =
-        "Creating your account...";
-
 
       const name =
         document.getElementById(
           "signupName"
-        ).value;
+        ).value.trim();
+
 
       const email =
         document.getElementById(
           "signupEmail"
-        ).value;
+        ).value.trim();
+
 
       const password =
         document.getElementById(
           "signupPassword"
         ).value;
+
+
+      showMessage(
+        "Creating your account..."
+      );
+
+
+      const button =
+        document.getElementById(
+          "signupButton"
+        );
+
+
+      if (button) {
+
+        button.disabled =
+          true;
+
+        button.classList.add(
+          "loading"
+        );
+
+      }
 
 
       const {
@@ -876,24 +1413,23 @@
         await supabaseClient.auth
           .signUp({
 
-            email: email,
+            email,
 
-            password: password,
+            password,
 
             options: {
 
               data: {
-                full_name: name
-              },
 
-              /*
-                After email verification,
-                Supabase sends the user here.
-              */
+                full_name:
+                  name
+
+              },
 
               emailRedirectTo:
                 window.location.origin +
-                "/home.html"
+                "/login.html"
+
             }
 
           });
@@ -901,44 +1437,60 @@
 
       if (error) {
 
-        message.textContent =
-          error.message;
+        showMessage(
+          error.message,
+          "#ef4444"
+        );
+
+
+        if (button) {
+
+          button.disabled =
+            false;
+
+          button.classList.remove(
+            "loading"
+          );
+
+        }
 
         return;
       }
 
 
       /*
-        If email confirmation is enabled,
-        the user needs to confirm their email.
+        Email confirmation enabled
       */
 
       if (!data.session) {
 
-        message.textContent =
-          "Account created! Check your email to verify your account.";
+        showMessage(
+          "Account created! Check your email to verify your account.",
+          "#a855f7"
+        );
 
         return;
       }
 
 
-      message.textContent =
-        "Account created!";
+      /*
+        If Supabase immediately
+        created a session.
+      */
 
-
-      window.location.href =
-        "home.html";
+      await redirectAfterAuth();
     }
 
 
     /* =====================================
-       GOOGLE LOGIN
+       GOOGLE
     ===================================== */
 
     async function loginWithGoogle() {
 
-      message.textContent =
-        "Connecting to Google...";
+      showMessage(
+        "Connecting to Google..."
+      );
 
 
       const {
@@ -947,13 +1499,14 @@
         await supabaseClient.auth
           .signInWithOAuth({
 
-            provider: "google",
+            provider:
+              "google",
 
             options: {
 
               redirectTo:
                 window.location.origin +
-                "/home.html"
+                "/login.html"
 
             }
 
@@ -962,20 +1515,23 @@
 
       if (error) {
 
-        message.textContent =
-          error.message;
+        showMessage(
+          error.message,
+          "#ef4444"
+        );
       }
     }
 
 
     /* =====================================
-       APPLE LOGIN
+       APPLE
     ===================================== */
 
     async function loginWithApple() {
 
-      message.textContent =
-        "Connecting to Apple...";
+      showMessage(
+        "Connecting to Apple..."
+      );
 
 
       const {
@@ -984,13 +1540,14 @@
         await supabaseClient.auth
           .signInWithOAuth({
 
-            provider: "apple",
+            provider:
+              "apple",
 
             options: {
 
               redirectTo:
                 window.location.origin +
-                "/home.html"
+                "/login.html"
 
             }
 
@@ -999,36 +1556,92 @@
 
       if (error) {
 
-        message.textContent =
-          error.message;
+        showMessage(
+          error.message,
+          "#ef4444"
+        );
       }
     }
 
 
     /* =====================================
-       CHECK EXISTING SESSION
+       CHECK SESSION
     ===================================== */
 
-    supabaseClient.auth
-      .getSession()
-      .then(({ data }) => {
+    async function checkSession() {
 
-        if (data.session) {
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth
+          .getSession();
 
-          window.location.href =
-            "home.html";
-        }
 
-      });
+      if (error) {
+
+        console.error(error);
+
+        return;
+      }
+
+
+      /*
+        User returned from Google/Apple
+        or already has an active session.
+      */
+
+      if (data.session) {
+
+        await redirectAfterAuth();
+
+      }
+
+    }
 
 
     /* =====================================
-       START WITH LOGIN
+       AUTH STATE CHANGES
+    ===================================== */
+
+    supabaseClient.auth
+      .onAuthStateChange(
+        async (event, session) => {
+
+          if (
+            event ===
+              "SIGNED_IN" &&
+            session
+          ) {
+
+            /*
+              Small delay prevents
+              race conditions after OAuth.
+            */
+
+            setTimeout(
+              () => {
+                redirectAfterAuth();
+              },
+              100
+            );
+
+          }
+
+        }
+      );
+
+
+    /* =====================================
+       START
     ===================================== */
 
     showLogin();
 
+    checkSession();
+
   </script>
 
 </body>
+
 </html>
