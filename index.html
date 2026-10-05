@@ -1,428 +1,544 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>waygo</title>
+    <title>WayGo</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <!-- Premium fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    body {
-      min-height: 100vh;
-      overflow: hidden;
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Montserrat:wght@300;400&display=swap"
+        rel="stylesheet"
+    >
 
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    <style>
 
-      background:
-        radial-gradient(
-          circle at center,
-          rgba(126, 34, 206, 0.22),
-          transparent 38%
-        ),
-        #030205;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      font-family: Arial, Helvetica, sans-serif;
-    }
 
-    /* Fialové svetlo */
+        body {
+            width: 100%;
+            height: 100vh;
 
-    .glow {
-      position: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
-      width: 400px;
-      height: 400px;
+            overflow: hidden;
 
-      border-radius: 50%;
+            background:
+                radial-gradient(
+                    ellipse at center,
+                    #21132f 0%,
+                    #100a17 25%,
+                    #070509 55%,
+                    #000000 100%
+                );
 
-      background: #7c3aed;
+            color: white;
+        }
 
-      filter: blur(150px);
 
-      opacity: 0.13;
+        /* =========================
+           BACKGROUND GLOW
+        ========================= */
 
-      animation: glowPulse 3s ease-in-out infinite alternate;
-    }
+        .background-glow {
+            position: absolute;
 
-    @keyframes glowPulse {
-      from {
-        transform: scale(0.85);
-        opacity: 0.08;
-      }
+            width: 550px;
+            height: 550px;
 
-      to {
-        transform: scale(1.15);
-        opacity: 0.18;
-      }
-    }
+            border-radius: 50%;
 
-    /* Logo */
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(155, 78, 255, 0.18),
+                    rgba(100, 30, 200, 0.06) 35%,
+                    transparent 70%
+                );
 
-    .logo {
-      position: relative;
-      z-index: 2;
+            filter: blur(20px);
 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+            animation:
+                backgroundPulse 7s ease-in-out infinite;
+        }
 
-      text-align: center;
-    }
 
-    /* W */
+        /* =========================
+           MAIN LOGO
+        ========================= */
 
-    .w-svg {
-      width: 250px;
-      height: 250px;
+        .logo-container {
+            position: relative;
 
-      overflow: visible;
-    }
+            width: 560px;
+            height: 560px;
 
-    .w-line {
-      fill: none;
+            display: flex;
+            flex-direction: column;
 
-      stroke: #b66cff;
+            justify-content: center;
+            align-items: center;
 
-      stroke-width: 18;
+            animation:
+                logoEntrance 1.8s cubic-bezier(.16,1,.3,1) forwards,
+                floating 6s ease-in-out 4s infinite;
+        }
 
-      stroke-linecap: round;
-      stroke-linejoin: round;
 
-      filter:
-        drop-shadow(0 0 5px #b66cff)
-        drop-shadow(0 0 15px #9333ea)
-        drop-shadow(0 0 30px rgba(147, 51, 234, 0.65));
-    }
+        /* =========================
+           BIG ORBIT
+        ========================= */
 
-    /*
-      W sa kreslí po jednotlivých ťahoch
-    */
+        .orbit {
+            position: absolute;
 
-    .stroke1 {
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 1000;
+            width: 540px;
+            height: 540px;
 
-      animation:
-        draw1 0.65s ease forwards;
-    }
+            border-radius: 50%;
 
-    .stroke2 {
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 1000;
+            border: 1px solid rgba(185, 125, 255, 0.13);
 
-      animation:
-        draw2 0.55s ease forwards;
+            transform: rotate(-20deg);
 
-      animation-delay: 0.55s;
-    }
+            opacity: 0;
 
-    .stroke3 {
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 1000;
+            animation:
+                orbitEntrance 2s ease 1s forwards;
+        }
 
-      animation:
-        draw3 0.55s ease forwards;
 
-      animation-delay: 1s;
-    }
+        /* =========================
+           SVG
+        ========================= */
 
-    .stroke4 {
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 1000;
+        svg {
+            position: relative;
 
-      animation:
-        draw4 0.65s ease forwards;
+            width: 310px;
+            height: 250px;
 
-      animation-delay: 1.45s;
-    }
+            overflow: visible;
+        }
 
-    @keyframes draw1 {
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
 
-    @keyframes draw2 {
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
+        /* =========================
+           LOGO STROKES
+        ========================= */
 
-    @keyframes draw3 {
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
+        .logo-line {
 
-    @keyframes draw4 {
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
+            fill: none;
 
-    /* Jemné dokončenie */
+            stroke: url(#purpleGradient);
 
-    .w-svg {
-      animation: wFinish 0.5s ease forwards;
-      animation-delay: 2s;
-    }
+            stroke-width: 4;
 
-    @keyframes wFinish {
-      0% {
-        transform: scale(1);
-      }
+            stroke-linecap: round;
 
-      60% {
-        transform: scale(1.04);
-      }
+            stroke-linejoin: round;
 
-      100% {
-        transform: scale(1);
-      }
-    }
+            stroke-dasharray: 1000;
 
-    /* waygo */
+            stroke-dashoffset: 1000;
 
-    .name {
-      margin-top: 5px;
+            filter:
+                drop-shadow(
+                    0 0 4px rgba(183, 112, 255, 0.9)
+                );
 
-      font-size: 52px;
+            animation:
+                drawLogo 2.8s
+                cubic-bezier(.65,0,.35,1)
+                forwards;
+        }
 
-      font-weight: 900;
 
-      letter-spacing: -2px;
+        .w {
+            animation-delay: 0.15s;
+        }
 
-      color: white;
 
-      opacity: 0;
+        .g {
+            animation-delay: 1.05s;
+        }
 
-      transform: translateY(15px);
 
-      animation:
-        nameAppear 0.7s ease forwards;
+        /* =========================
+           WAYGO
+        ========================= */
 
-      animation-delay: 1.9s;
+        .brand {
 
-      text-shadow:
-        0 0 15px rgba(168, 85, 247, 0.35);
-    }
+            margin-top: -8px;
 
-    .name span {
-      color: #a855f7;
+            font-family:
+                "Bodoni Moda",
+                serif;
 
-      text-shadow:
-        0 0 15px rgba(168, 85, 247, 0.65);
-    }
+            font-size: 58px;
 
-    @keyframes nameAppear {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+            font-weight: 400;
 
-    /* Načítavanie */
+            letter-spacing: 8px;
 
-    .loading {
-      margin-top: 38px;
+            color: #ffffff;
 
-      color: #706878;
+            opacity: 0;
 
-      font-size: 10px;
+            text-shadow:
+                0 0 25px rgba(255, 255, 255, 0.06);
 
-      font-weight: 700;
+            animation:
+                brandEntrance 1.4s
+                cubic-bezier(.16,1,.3,1)
+                2.6s
+                forwards;
+        }
 
-      letter-spacing: 5px;
 
-      opacity: 0;
+        /* =========================
+           LINE
+        ========================= */
 
-      animation:
-        fadeIn 0.5s ease forwards;
+        .brand-line {
 
-      animation-delay: 2s;
-    }
+            width: 0;
 
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
+            height: 1px;
 
-    /* Progress */
+            margin-top: 15px;
 
-    .progress {
-      width: 210px;
-      height: 3px;
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(180, 105, 255, 0.8),
+                    transparent
+                );
 
-      margin-top: 14px;
+            animation:
+                lineEntrance 1.4s ease 3.2s forwards;
+        }
 
-      overflow: hidden;
 
-      border-radius: 20px;
+        /* =========================
+           MICRO TEXT
+        ========================= */
 
-      background: rgba(255, 255, 255, 0.07);
+        .micro {
 
-      opacity: 0;
+            margin-top: 12px;
 
-      animation:
-        fadeIn 0.5s ease forwards;
+            font-family:
+                "Montserrat",
+                sans-serif;
 
-      animation-delay: 2s;
-    }
+            font-size: 7px;
 
-    .progress-bar {
-      width: 0%;
-      height: 100%;
+            font-weight: 300;
 
-      border-radius: 20px;
+            letter-spacing: 6px;
 
-      background: linear-gradient(
-        90deg,
-        #6d28d9,
-        #9333ea,
-        #c084fc
-      );
+            color:
+                rgba(255, 255, 255, 0.32);
 
-      box-shadow:
-        0 0 10px #9333ea,
-        0 0 20px #7c3aed;
+            text-transform: uppercase;
 
-      animation:
-        progress 3s linear forwards;
-    }
+            opacity: 0;
 
-    @keyframes progress {
-      from {
-        width: 0%;
-      }
+            animation:
+                microEntrance 1s ease 3.5s forwards;
+        }
 
-      to {
-        width: 100%;
-      }
-    }
 
-    /* Mobil */
+        /* =========================
+           ANIMATIONS
+        ========================= */
 
-    @media (max-width: 600px) {
+        @keyframes drawLogo {
 
-      .w-svg {
-        width: 210px;
-        height: 210px;
-      }
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
 
-      .name {
-        font-size: 43px;
-      }
 
-      .progress {
-        width: 180px;
-      }
-    }
-  </style>
+        @keyframes logoEntrance {
+
+            from {
+                opacity: 0;
+
+                transform:
+                    scale(0.92)
+                    translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+
+                transform:
+                    scale(1)
+                    translateY(0);
+            }
+        }
+
+
+        @keyframes floating {
+
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+
+        @keyframes backgroundPulse {
+
+            0%, 100% {
+                transform: scale(0.9);
+                opacity: 0.7;
+            }
+
+            50% {
+                transform: scale(1.08);
+                opacity: 1;
+            }
+        }
+
+
+        @keyframes orbitEntrance {
+
+            from {
+                opacity: 0;
+
+                transform:
+                    scale(0.75)
+                    rotate(-20deg);
+            }
+
+            to {
+                opacity: 1;
+
+                transform:
+                    scale(1)
+                    rotate(-20deg);
+            }
+        }
+
+
+        @keyframes brandEntrance {
+
+            from {
+                opacity: 0;
+
+                transform: translateY(18px);
+
+                letter-spacing: 16px;
+            }
+
+            to {
+                opacity: 1;
+
+                transform: translateY(0);
+
+                letter-spacing: 8px;
+            }
+        }
+
+
+        @keyframes lineEntrance {
+
+            from {
+                width: 0;
+                opacity: 0;
+            }
+
+            to {
+                width: 170px;
+                opacity: 1;
+            }
+        }
+
+
+        @keyframes microEntrance {
+
+            from {
+                opacity: 0;
+
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 600px) {
+
+            .logo-container {
+                transform: scale(0.65);
+            }
+
+            .orbit {
+                width: 540px;
+                height: 540px;
+            }
+        }
+
+    </style>
 </head>
+
 
 <body>
 
-  <!-- Fialový glow -->
-
-  <div class="glow"></div>
+    <div class="background-glow"></div>
 
 
-  <!-- LOGO -->
+    <div class="logo-container">
 
-  <div class="logo">
-
-    <!-- Veľké tlačené W -->
-
-    <svg
-      class="w-svg"
-      viewBox="0 0 250 250"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-
-      <!-- 1. ľavý ťah -->
-
-      <line
-        class="w-line stroke1"
-        x1="25"
-        y1="35"
-        x2="75"
-        y2="215"
-      />
+        <div class="orbit"></div>
 
 
-      <!-- 2. prvý vnútorný ťah -->
+        <svg viewBox="0 0 310 250">
 
-      <line
-        class="w-line stroke2"
-        x1="75"
-        y1="215"
-        x2="125"
-        y2="35"
-      />
+            <defs>
 
+                <linearGradient
+                    id="purpleGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                >
 
-      <!-- 3. druhý vnútorný ťah -->
+                    <stop
+                        offset="0%"
+                        stop-color="#d09aff"
+                    />
 
-      <line
-        class="w-line stroke3"
-        x1="125"
-        y1="35"
-        x2="175"
-        y2="215"
-      />
+                    <stop
+                        offset="45%"
+                        stop-color="#a45cff"
+                    />
 
+                    <stop
+                        offset="100%"
+                        stop-color="#7135d6"
+                    />
 
-      <!-- 4. pravý ťah -->
+                </linearGradient>
 
-      <line
-        class="w-line stroke4"
-        x1="175"
-        y1="215"
-        x2="225"
-        y2="35"
-      />
-
-    </svg>
+            </defs>
 
 
-    <!-- waygo -->
+            <!-- W -->
 
-    <div class="name">
-      <span>W</span>ago
+            <path
+                class="logo-line w"
+                d="
+                    M 48 55
+
+                    C 54 88,
+                      64 137,
+                      75 170
+
+                    C 80 184,
+                      88 184,
+                      95 165
+
+                    L 118 92
+
+                    C 122 78,
+                      127 78,
+                      132 93
+
+                    L 151 165
+
+                    C 155 183,
+                      163 183,
+                      169 164
+
+                    L 204 55
+                "
+            />
+
+
+            <!-- G -->
+
+            <path
+                class="logo-line g"
+                d="
+                    M 250 72
+
+                    C 242 55,
+                      226 50,
+                      212 59
+
+                    C 192 72,
+                      187 103,
+                      191 130
+
+                    C 195 158,
+                      209 174,
+                      228 174
+
+                    C 246 174,
+                      255 159,
+                      254 138
+
+                    L 230 138
+                "
+            />
+
+        </svg>
+
+
+        <div class="brand">
+            WayGo
+        </div>
+
+
+        <div class="brand-line"></div>
+
+
+        <div class="micro">
+            FIND YOUR WAY
+        </div>
+
     </div>
 
 
-    <!-- Načítavanie -->
+    <script>
 
+        setTimeout(() => {
 
+            window.location.href = "login.html";
 
+        }, 5000);
 
-    <div class="progress">
-      <div class="progress-bar"></div>
-    </div>
-
-  </div>
-
-
-  <script>
-
-    /*
-      Po 3 sekundách prejde na login.html.
-    */
-
-    setTimeout(() => {
-      window.location.href = "login.html";
-    }, 3000);
-
-  </script>
+    </script>
 
 </body>
 </html>
