@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="sk">
 <head>
@@ -24,7 +25,6 @@
       color: white;
     }
 
-    /* Jemné tajomné svetlo */
     .glow {
       position: absolute;
       width: 500px;
@@ -42,7 +42,6 @@
       text-align: center;
     }
 
-    /* WG LOGO */
     .logo {
       width: 190px;
       height: 190px;
@@ -50,21 +49,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-
       border: 2px solid rgba(255,255,255,0.85);
       border-radius: 48px;
-
-      background:
-        linear-gradient(145deg,
-          rgba(255,255,255,0.12),
-          rgba(130,55,255,0.08)
-        );
-
+      background: linear-gradient(
+        145deg,
+        rgba(255,255,255,0.12),
+        rgba(130,55,255,0.08)
+      );
       box-shadow:
-        0 0 20px rgba(160, 80, 255, 0.55),
-        0 0 70px rgba(120, 45, 255, 0.25),
+        0 0 20px rgba(160,80,255,0.55),
+        0 0 70px rgba(120,45,255,0.25),
         inset 0 0 35px rgba(255,255,255,0.06);
-
       animation: float 5s ease-in-out infinite;
       position: relative;
     }
@@ -74,7 +69,7 @@
       position: absolute;
       inset: -8px;
       border-radius: 55px;
-      border: 1px solid rgba(181, 115, 255, 0.25);
+      border: 1px solid rgba(181,115,255,0.25);
       animation: rotate 12s linear infinite;
     }
 
@@ -95,18 +90,15 @@
       font-weight: 800;
       letter-spacing: 12px;
       margin-left: 12px;
-
       background: linear-gradient(
         90deg,
         #ffffff,
         #dcbaff,
         #ffffff
       );
-
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-
-      text-shadow: 0 0 25px rgba(166, 91, 255, 0.45);
+      text-shadow: 0 0 25px rgba(166,91,255,0.45);
     }
 
     .coming {
@@ -137,7 +129,6 @@
       color: rgba(255,255,255,0.3);
     }
 
-    /* Dekoratívne bodky */
     .stars {
       position: absolute;
       inset: 0;
@@ -148,6 +139,92 @@
       background-size: 90px 90px, 140px 140px;
       background-position: 10px 20px, 50px 80px;
       opacity: .22;
+    }
+
+    /* Tlačidlo */
+    .click-btn {
+      margin-top: 28px;
+      padding: 11px 25px;
+      font-size: 11px;
+      font-family: Arial, Helvetica, sans-serif;
+      letter-spacing: 4px;
+      color: rgba(255,255,255,0.8);
+      background: rgba(130,55,255,0.08);
+      border: 1px solid rgba(181,115,255,0.45);
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(160,80,255,0.15);
+      transition: 0.3s;
+    }
+
+    .click-btn:hover {
+      color: white;
+      border-color: #b46cff;
+      box-shadow: 0 0 25px rgba(160,80,255,0.5);
+      background: rgba(130,55,255,0.2);
+    }
+
+    /* Okno s obrázkom */
+    .image-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(5,3,8,0.88);
+      backdrop-filter: blur(10px);
+    }
+
+    .image-window {
+      position: relative;
+      width: min(450px, 100%);
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 30px 20px 20px;
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 0%, #29104d 0%, #10091d 65%, #050308 100%);
+      border: 1px solid rgba(181,115,255,0.55);
+      border-radius: 20px;
+      box-shadow:
+        0 0 20px rgba(160,80,255,0.35),
+        0 0 60px rgba(120,45,255,0.15);
+    }
+
+    .image-window h2 {
+      margin-bottom: 20px;
+      font-size: 20px;
+      letter-spacing: 5px;
+      color: white;
+      text-shadow: 0 0 15px #a85cff;
+    }
+
+    .image-window img {
+      display: block;
+      width: 100%;
+      max-height: 60vh;
+      object-fit: contain;
+      border-radius: 12px;
+      border: 1px solid rgba(181,115,255,0.3);
+      box-shadow: 0 0 25px rgba(120,45,255,0.2);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 13px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      font-size: 23px;
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      color: white;
+      text-shadow: 0 0 12px #b46cff;
     }
 
     @keyframes pulse {
@@ -162,30 +239,18 @@
     }
 
     @keyframes float {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-10px);
-      }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
 
     @keyframes rotate {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     @keyframes flicker {
-      0%, 18%, 20%, 22%, 65%, 100% {
-        opacity: .7;
-      }
-      19%, 21%, 64% {
-        opacity: .25;
-      }
+      0%, 18%, 20%, 22%, 65%, 100% { opacity: .7; }
+      19%, 21%, 64% { opacity: .25; }
     }
 
     @media (max-width: 600px) {
@@ -232,10 +297,60 @@
     </div>
 
     <div class="mystery">
-      Something is coming...
+      something is coming...
     </div>
 
+    <button class="click-btn" onclick="openImage()">
+      TU KLIKNI
+    </button>
+
   </main>
+
+  <!-- Okno s tvojím obrázkom -->
+  <div
+    class="image-overlay"
+    id="imageOverlay"
+    onclick="closeImage(event)"
+  >
+    <div class="image-window">
+
+      <button
+        class="close-btn"
+        onclick="closeImage()"
+        aria-label="Zavrieť"
+      >×</button>
+
+      <h2>NA LETEL HAHAHAH</h2>
+
+      <img
+        src="https://i.pinimg.com/736x/15/25/ef/1525efe277384fed920ac043a6f972bf.jpg"
+        alt="WAYGO"
+      >
+
+    </div>
+  </div>
+
+  <script>
+    function openImage() {
+      document.getElementById("imageOverlay").style.display = "flex";
+    }
+
+    function closeImage(event) {
+      if (
+        !event ||
+        event.target.id === "imageOverlay" ||
+        event.target.classList.contains("close-btn")
+      ) {
+        document.getElementById("imageOverlay").style.display = "none";
+      }
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape") {
+        document.getElementById("imageOverlay").style.display = "none";
+      }
+    });
+  </script>
 
 </body>
 </html>
