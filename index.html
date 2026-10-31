@@ -2,355 +2,152 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WAYGO — Už čoskoro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WG</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      min-height: 100vh;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background:
-        radial-gradient(circle at 50% 45%, #29104d 0%, #10091d 38%, #050308 75%);
-      font-family: Arial, Helvetica, sans-serif;
-      color: white;
-    }
+        body {
+            height: 100vh;
+            background: #050408;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
 
-    .glow {
-      position: absolute;
-      width: 500px;
-      height: 500px;
-      border-radius: 50%;
-      background: #8d42ff;
-      filter: blur(140px);
-      opacity: 0.22;
-      animation: pulse 4s ease-in-out infinite;
-    }
+        .background {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 110%, #581c87 0%, transparent 50%),
+                #050408;
+        }
 
-    .container {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-    }
+        .line {
+            position: absolute;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(
+                transparent,
+                #9333ea55,
+                transparent
+            );
+            left: 50%;
+            opacity: 0.4;
+        }
 
-    .logo {
-      width: 190px;
-      height: 190px;
-      margin: 0 auto 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid rgba(255,255,255,0.85);
-      border-radius: 48px;
-      background: linear-gradient(
-        145deg,
-        rgba(255,255,255,0.12),
-        rgba(130,55,255,0.08)
-      );
-      box-shadow:
-        0 0 20px rgba(160,80,255,0.55),
-        0 0 70px rgba(120,45,255,0.25),
-        inset 0 0 35px rgba(255,255,255,0.06);
-      animation: float 5s ease-in-out infinite;
-      position: relative;
-    }
+        .content {
+            position: relative;
+            text-align: center;
+            z-index: 2;
+            animation: reveal 1.8s ease forwards;
+        }
 
-    .logo::before {
-      content: "";
-      position: absolute;
-      inset: -8px;
-      border-radius: 55px;
-      border: 1px solid rgba(181,115,255,0.25);
-      animation: rotate 12s linear infinite;
-    }
+        .logo {
+            font-size: clamp(110px, 22vw, 190px);
+            font-weight: 900;
+            letter-spacing: -15px;
+            line-height: 1;
+            background: linear-gradient(
+                135deg,
+                #ffffff 10%,
+                #d8b4fe 45%,
+                #9333ea 85%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 35px #9333ea55);
+        }
 
-    .wg {
-      font-size: 82px;
-      font-weight: 900;
-      letter-spacing: -10px;
-      color: white;
-      text-shadow:
-        0 0 10px white,
-        0 0 25px #a85cff,
-        0 0 50px #6d20ff;
-      transform: translateX(-5px);
-    }
+        .divider {
+            width: 55px;
+            height: 2px;
+            margin: 30px auto 20px;
+            background: #a855f7;
+            box-shadow: 0 0 15px #a855f7;
+        }
 
-    .brand {
-      font-size: 42px;
-      font-weight: 800;
-      letter-spacing: 12px;
-      margin-left: 12px;
-      background: linear-gradient(
-        90deg,
-        #ffffff,
-        #dcbaff,
-        #ffffff
-      );
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 25px rgba(166,91,255,0.45);
-    }
+        .caption {
+            color: #aaa0b8;
+            font-size: 10px;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+        }
 
-    .coming {
-      margin-top: 24px;
-      font-size: 13px;
-      letter-spacing: 7px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.65);
-      animation: flicker 3s infinite;
-    }
+        .corner {
+            position: absolute;
+            color: #62556f;
+            font-size: 10px;
+            letter-spacing: 3px;
+        }
 
-    .line {
-      width: 100px;
-      height: 1px;
-      margin: 22px auto;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        #b46cff,
-        transparent
-      );
-      box-shadow: 0 0 15px #9b4dff;
-    }
+        .top {
+            top: 35px;
+            left: 40px;
+        }
 
-    .mystery {
-      font-size: 11px;
-      letter-spacing: 4px;
-      color: rgba(255,255,255,0.3);
-    }
+        .bottom {
+            bottom: 35px;
+            right: 40px;
+        }
 
-    .stars {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        radial-gradient(circle, rgba(255,255,255,.8) 1px, transparent 1px),
-        radial-gradient(circle, rgba(173,91,255,.5) 1px, transparent 1px);
-      background-size: 90px 90px, 140px 140px;
-      background-position: 10px 20px, 50px 80px;
-      opacity: .22;
-    }
+        @keyframes reveal {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+                filter: blur(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
 
-    /* Tlačidlo */
-    .click-btn {
-      margin-top: 28px;
-      padding: 11px 25px;
-      font-size: 11px;
-      font-family: Arial, Helvetica, sans-serif;
-      letter-spacing: 4px;
-      color: rgba(255,255,255,0.8);
-      background: rgba(130,55,255,0.08);
-      border: 1px solid rgba(181,115,255,0.45);
-      border-radius: 25px;
-      cursor: pointer;
-      box-shadow: 0 0 20px rgba(160,80,255,0.15);
-      transition: 0.3s;
-    }
+        @media(max-width: 500px) {
+            .logo {
+                letter-spacing: -9px;
+            }
 
-    .click-btn:hover {
-      color: white;
-      border-color: #b46cff;
-      box-shadow: 0 0 25px rgba(160,80,255,0.5);
-      background: rgba(130,55,255,0.2);
-    }
-
-    /* Okno s obrázkom */
-    .image-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(5,3,8,0.88);
-      backdrop-filter: blur(10px);
-    }
-
-    .image-window {
-      position: relative;
-      width: min(450px, 100%);
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 30px 20px 20px;
-      text-align: center;
-      background:
-        radial-gradient(circle at 50% 0%, #29104d 0%, #10091d 65%, #050308 100%);
-      border: 1px solid rgba(181,115,255,0.55);
-      border-radius: 20px;
-      box-shadow:
-        0 0 20px rgba(160,80,255,0.35),
-        0 0 60px rgba(120,45,255,0.15);
-    }
-
-    .image-window h2 {
-      margin-bottom: 20px;
-      font-size: 20px;
-      letter-spacing: 5px;
-      color: white;
-      text-shadow: 0 0 15px #a85cff;
-    }
-
-    .image-window img {
-      display: block;
-      width: 100%;
-      max-height: 60vh;
-      object-fit: contain;
-      border-radius: 12px;
-      border: 1px solid rgba(181,115,255,0.3);
-      box-shadow: 0 0 25px rgba(120,45,255,0.2);
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 8px;
-      right: 13px;
-      background: none;
-      border: none;
-      color: rgba(255,255,255,0.7);
-      font-size: 23px;
-      cursor: pointer;
-    }
-
-    .close-btn:hover {
-      color: white;
-      text-shadow: 0 0 12px #b46cff;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(0.9);
-        opacity: .18;
-      }
-      50% {
-        transform: scale(1.15);
-        opacity: .3;
-      }
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes flicker {
-      0%, 18%, 20%, 22%, 65%, 100% { opacity: .7; }
-      19%, 21%, 64% { opacity: .25; }
-    }
-
-    @media (max-width: 600px) {
-      .logo {
-        width: 145px;
-        height: 145px;
-        border-radius: 38px;
-      }
-
-      .wg {
-        font-size: 62px;
-      }
-
-      .brand {
-        font-size: 29px;
-        letter-spacing: 8px;
-      }
-
-      .coming {
-        font-size: 10px;
-        letter-spacing: 5px;
-      }
-    }
-  </style>
+            .caption {
+                letter-spacing: 5px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-  <div class="stars"></div>
-  <div class="glow"></div>
-
-  <main class="container">
-
-    <div class="logo">
-      <div class="wg">WG</div>
-    </div>
-
-    <div class="brand">WAYGO</div>
-
+    <div class="background"></div>
     <div class="line"></div>
 
-    <div class="coming">
-      Už čoskoro
-    </div>
+    <div class="corner top">EST. 2026</div>
 
-    <div class="mystery">
-      something is coming...
-    </div>
+    <main class="content">
+        <div class="logo">WG</div>
 
-    <button class="click-btn" onclick="openImage()">
-      TU KLIKNI
-    </button>
+        <div class="divider"></div>
 
-  </main>
+        <div class="caption">
+            Welcome to WG
+        </div>
+    </main>
 
-  <!-- Okno s tvojím obrázkom -->
-  <div
-    class="image-overlay"
-    id="imageOverlay"
-    onclick="closeImage(event)"
-  >
-    <div class="image-window">
+    <div class="corner bottom">EXPERIENCE MORE.</div>
 
-      <button
-        class="close-btn"
-        onclick="closeImage()"
-        aria-label="Zavrieť"
-      >×</button>
-
-      <h2>NA LETEL HAHAHAH</h2>
-
-      <img
-        src="https://i.pinimg.com/736x/15/25/ef/1525efe277384fed920ac043a6f972bf.jpg"
-        alt="WAYGO"
-      >
-
-    </div>
-  </div>
-
-  <script>
-    function openImage() {
-      document.getElementById("imageOverlay").style.display = "flex";
-    }
-
-    function closeImage(event) {
-      if (
-        !event ||
-        event.target.id === "imageOverlay" ||
-        event.target.classList.contains("close-btn")
-      ) {
-        document.getElementById("imageOverlay").style.display = "none";
-      }
-    }
-
-    document.addEventListener("keydown", function(event) {
-      if (event.key === "Escape") {
-        document.getElementById("imageOverlay").style.display = "none";
-      }
-    });
-  </script>
+    <script>
+        setTimeout(() => {
+            window.location.replace("login.html");
+        }, 3000);
+    </script>
 
 </body>
 </html>
