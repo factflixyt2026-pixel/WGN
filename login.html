@@ -1775,25 +1775,26 @@
            EXISTING SESSION
         ===================================================== */
 
-        async function checkSession() {
+        
+async function checkSession() {
+    try {
+        const { data, error } =
+            await supabaseClient.auth.getSession();
 
-            const {
-                data,
-                error
-            } =
-                await supabaseClient.auth
-                    .getSession();
+        if (error) {
+            console.error("Session error:", error);
+            return;
+        }
 
-
-            if (error) {
-
-                console.error(
-                    "Session error:",
-                    error
-                );
-
-                return;
-            }
+        if (data.session) {
+            window.location.replace(
+                "https://www.waygo.fun/home.html"
+            );
+        }
+    } catch (error) {
+        console.error("Session check failed:", error);
+    }
+}
 
 
             if (data.session) {
@@ -1808,32 +1809,21 @@
            AUTH STATE
         ===================================================== */
 
-        supabaseClient.auth
-            .onAuthStateChange(
-                (event, session) => {
+        
+supabaseClient.auth.onAuthStateChange(
+    (event, session) => {
+        console.log("Auth event:", event);
 
-                    if (
-                        event === "SIGNED_IN" &&
-                        session
-                    ) {
-
-                        /*
-                         * OAuth login can arrive here.
-                         */
-
-                        if (
-                            !window.location.pathname
-                                .endsWith("home.html")
-                        ) {
-
-                            window.location.href =
-                                "home.html";
-                        }
-
-                    }
-
-                }
+        if (
+            event === "SIGNED_IN" &&
+            session
+        ) {
+            window.location.replace(
+                "https://www.waygo.fun/home.html"
             );
+        }
+    }
+);
 
 
         /* =====================================================
