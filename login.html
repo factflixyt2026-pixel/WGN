@@ -1209,11 +1209,18 @@
         const SUPABASE_KEY = "sb_publishable__wRrXevRd1_sw9T4DEIUUg_xjd0rszL";
 
 
-        const supabaseClient =
-            window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_KEY
-            );
+        const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY,
+    {
+        auth: {
+            flowType: "pkce",
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true
+        }
+    }
+);
 
 
         /* =====================================================
@@ -1633,26 +1640,48 @@
            GOOGLE
         ===================================================== */
 
-        async function signInWithGoogle() {
+       async function signInWithGoogle() {
+    try {
+        clearMessages();
 
-            const {
-                error
-            } =
-                await supabaseClient.auth
-                    .signInWithOAuth({
+        console.log("Google login started");
+        console.log("Supabase URL:", SUPABASE_URL);
 
-                        provider: "google",
+        const redirectUrl = new URL(
+            "/home.html",
+            window.location.origin
+        ).toString();
 
-                        options: {
+        console.log("Redirect URL:", redirectUrl);
 
-                            redirectTo:
-                                window.location.origin +
-                                "/home.html"
+        const { data, error } =
+            await supabaseClient.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo: redirectUrl
+                }
+            });
 
-                        }
+        if (error) {
+            console.error("OAuth error:", error);
 
-                    });
+            showMessage(
+                loginMessage,
+                error.message,
+                "error"
+            );
+        }
 
+    } catch (error) {
+        console.error("Google login exception:", error);
+
+        showMessage(
+            loginMessage,
+            error.message || "Google login failed.",
+            "error"
+        );
+    }
+}
 
             if (error) {
 
