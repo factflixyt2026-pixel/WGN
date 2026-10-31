@@ -1,0 +1,855 @@
+
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudySpace | Social</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    background:#09070f;
+    color:#fff;
+    font-family:Arial,sans-serif;
+    min-height:100vh;
+    padding:30px 20px;
+}
+
+.container{max-width:1100px;margin:auto}
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:35px;
+}
+
+.logo{font-size:23px;font-weight:bold}
+.logo span{color:#a66aff}
+
+.status{font-size:13px;color:#a99dbb}
+
+.hero{margin-bottom:30px}
+.hero h1{font-size:32px;margin-bottom:8px}
+.hero p{color:#a99dbb;font-size:14px}
+
+.card{
+    background:#151020;
+    border:1px solid #30213f;
+    border-radius:17px;
+    padding:23px;
+    margin-bottom:20px;
+}
+
+h2{font-size:19px;margin-bottom:8px}
+.subtitle{color:#a99dbb;font-size:13px;margin-bottom:20px}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+button{
+    background:#8149d6;
+    color:white;
+    border:0;
+    border-radius:10px;
+    padding:12px 17px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+button:hover{background:#9b68ed}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+.secondary{
+    background:#261a36;
+    border:1px solid #493362;
+}
+
+.danger{
+    background:#63253b;
+}
+
+input,textarea,select{
+    width:100%;
+    padding:13px;
+    background:#0c0913;
+    color:white;
+    border:1px solid #493362;
+    border-radius:9px;
+    outline:none;
+    font-family:inherit;
+}
+
+input:focus,textarea:focus,select:focus{
+    border-color:#a66aff;
+}
+
+textarea{resize:vertical;min-height:85px}
+
+label{
+    display:block;
+    font-size:13px;
+    color:#d5c6e9;
+    margin:15px 0 7px;
+}
+
+.group{
+    background:#1c1528;
+    border:1px solid #30213f;
+    border-radius:13px;
+    padding:17px;
+    margin-bottom:12px;
+    transition:.2s;
+}
+
+.group:hover{
+    border-color:#8551ca;
+    transform:translateY(-2px);
+}
+
+.group h3{font-size:16px;margin-bottom:6px}
+.group p{font-size:13px;color:#a99dbb;margin-bottom:13px}
+
+.group-info{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    font-size:12px;
+    color:#b99ce5;
+    margin-bottom:14px;
+}
+
+.group button{padding:9px 13px;font-size:12px}
+
+.tag{
+    display:inline-block;
+    background:#302044;
+    color:#c8a9ff;
+    padding:5px 9px;
+    border-radius:7px;
+    font-size:11px;
+    margin-bottom:10px;
+}
+
+.empty{
+    color:#a99dbb;
+    font-size:14px;
+    padding:15px 0;
+}
+
+.form-button{width:100%;margin-top:18px}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:#000d;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    z-index:5;
+}
+
+.modal-content{
+    width:100%;
+    max-width:480px;
+    background:#171021;
+    border:1px solid #493362;
+    border-radius:18px;
+    padding:25px;
+    max-height:90vh;
+    overflow-y:auto;
+}
+
+.modal-content h2{font-size:22px}
+
+.modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.modal-actions button{flex:1}
+
+.error{
+    color:#ff8198;
+    font-size:13px;
+    margin-top:12px;
+}
+
+.success{
+    color:#a8e8bd;
+    font-size:13px;
+    margin-top:12px;
+}
+
+.member{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid #30213f;
+}
+
+.member:last-child{border:0}
+
+.member img{
+    width:37px;
+    height:37px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.member-name{flex:1;font-weight:bold;font-size:14px}
+
+.code{
+    background:#0c0913;
+    border:1px dashed #8551ca;
+    border-radius:10px;
+    padding:14px;
+    color:#c9a6ff;
+    font-size:19px;
+    letter-spacing:3px;
+    text-align:center;
+    margin:15px 0;
+}
+
+.top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+@media(max-width:700px){
+    .grid{grid-template-columns:1fr}
+    .hero h1{font-size:26px}
+    header{margin-bottom:25px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+    <div class="logo">STUDY<span>SPACE</span></div>
+    <div class="status" id="status">Social</div>
+</header>
+
+<div class="hero">
+    <h1>Study together. Grow together. 💜</h1>
+    <p>Vytváraj učebné skupiny, spoznávaj študentov a učte sa spoločne.</p>
+</div>
+
+<div class="top-actions">
+    <button onclick="openCreate()">+ Vytvoriť skupinu</button>
+    <button class="secondary" onclick="openJoin()">Pripojiť sa k skupine</button>
+</div>
+
+<div class="grid">
+
+    <section class="card">
+        <h2>👥 Moje skupiny</h2>
+        <p class="subtitle">Skupiny, ktorých si členom.</p>
+        <div id="myGroups">Načítavam...</div>
+    </section>
+
+    <section class="card">
+        <h2>🌎 Objav skupiny</h2>
+        <p class="subtitle">Nájdi študentov s podobnými záujmami.</p>
+
+        <input
+            id="search"
+            type="text"
+            placeholder="Hľadať skupinu alebo predmet..."
+        >
+
+        <div style="height:15px"></div>
+        <div id="publicGroups">Načítavam...</div>
+    </section>
+
+</div>
+
+<!-- DETAIL SKUPINY -->
+
+<section class="card" id="groupDetails" style="display:none">
+
+    <button class="secondary" onclick="closeDetails()">
+        ← Späť
+    </button>
+
+    <div style="height:20px"></div>
+
+    <h2 id="detailName">Názov skupiny</h2>
+    <p class="subtitle" id="detailDescription"></p>
+
+    <div class="group-info">
+        <span id="detailSubject"></span>
+        <span id="detailMembers"></span>
+    </div>
+
+    <div id="inviteArea"></div>
+
+    <h2 style="margin-top:25px">Členovia skupiny</h2>
+    <div id="membersList"></div>
+
+    <button class="danger" id="leaveButton" onclick="leaveGroup()">
+        Opustiť skupinu
+    </button>
+
+</section>
+
+</div>
+
+
+<!-- VYTVORENIE SKUPINY -->
+
+<div class="modal" id="createModal">
+<div class="modal-content">
+
+    <h2>Vytvoriť učebnú skupinu</h2>
+    <p class="subtitle">Vytvor priestor, kde sa môžete spoločne učiť.</p>
+
+    <form id="createForm">
+
+        <label>Názov skupiny</label>
+        <input id="groupName" maxlength="60" required
+            placeholder="Napr. Biológia - maturita">
+
+        <label>Popis skupiny</label>
+        <textarea id="groupDescription" maxlength="300"
+            placeholder="Čomu sa budete venovať?"></textarea>
+
+        <label>Predmet</label>
+        <select id="groupSubject">
+            <option>Biológia</option>
+            <option>Chémia</option>
+            <option>Slovenský jazyk</option>
+            <option>Anglický jazyk</option>
+            <option>Matematika</option>
+            <option>Medicína</option>
+            <option>Iné</option>
+        </select>
+
+        <label>Viditeľnosť skupiny</label>
+        <select id="groupVisibility">
+            <option value="true">Verejná – každý ju môže nájsť</option>
+            <option value="false">Súkromná – iba cez pozývací kód</option>
+        </select>
+
+        <div class="error" id="createError"></div>
+
+        <div class="modal-actions">
+            <button type="button" class="secondary"
+                onclick="closeCreate()">Zrušiť</button>
+            <button type="submit" id="createButton">Vytvoriť</button>
+        </div>
+
+    </form>
+</div>
+</div>
+
+
+<!-- PRIPOJENIE KU SKUPINE -->
+
+<div class="modal" id="joinModal">
+<div class="modal-content">
+
+    <h2>Pripojiť sa ku skupine</h2>
+    <p class="subtitle">Zadaj pozývací kód, ktorý ti poslal zakladateľ.</p>
+
+    <label>Pozývací kód</label>
+    <input id="inviteCode" maxlength="12"
+        placeholder="Napr. ABC12345">
+
+    <div class="error" id="joinError"></div>
+
+    <div class="modal-actions">
+        <button class="secondary" onclick="closeJoin()">Zrušiť</button>
+        <button onclick="joinWithCode()">Pripojiť sa</button>
+    </div>
+
+</div>
+</div>
+
+
+<script>
+
+// =================================
+// SUPABASE
+// =================================
+
+const SUPABASE_URL = "TVOJA_SUPABASE_URL";
+const SUPABASE_KEY = "TVOJ_SUPABASE_ANON_KEY";
+
+const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+let currentUser = null;
+let selectedGroup = null;
+let myGroupIds = [];
+
+const $ = id => document.getElementById(id);
+
+
+// =================================
+// POMOCNÉ FUNKCIE
+// =================================
+
+function safe(text) {
+    return String(text ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    }[c]));
+}
+
+function showModal(id) {
+    $(id).style.display = "flex";
+}
+
+function hideModal(id) {
+    $(id).style.display = "none";
+}
+
+function openCreate() {
+    $("createError").textContent = "";
+    $("createForm").reset();
+    showModal("createModal");
+}
+
+function closeCreate() {
+    hideModal("createModal");
+}
+
+function openJoin() {
+    $("joinError").textContent = "";
+    $("inviteCode").value = "";
+    showModal("joinModal");
+}
+
+function closeJoin() {
+    hideModal("joinModal");
+}
+
+
+// =================================
+// NAČÍTANIE MOJICH SKUPÍN
+// =================================
+
+async function loadMyGroups() {
+
+    const { data: memberships, error } = await supabase
+        .from("group_members")
+        .select("group_id, role")
+        .eq("user_id", currentUser.id);
+
+    if (error) throw error;
+
+    myGroupIds = (memberships || []).map(m => m.group_id);
+
+    if (!myGroupIds.length) {
+        $("myGroups").innerHTML =
+            '<div class="empty">Zatiaľ nie si členom žiadnej skupiny.</div>';
+        return;
+    }
+
+    const { data: groups, error: groupError } = await supabase
+        .from("study_groups")
+        .select("*")
+        .in("id", myGroupIds)
+        .order("created_at", {ascending:false});
+
+    if (groupError) throw groupError;
+
+    renderGroups("myGroups", groups, true);
+}
+
+
+// =================================
+// VEREJNÉ SKUPINY
+// =================================
+
+async function loadPublicGroups() {
+
+    const { data, error } = await supabase
+        .from("study_groups")
+        .select("*")
+        .eq("is_public", true)
+        .order("created_at", {ascending:false});
+
+    if (error) throw error;
+
+    renderGroups("publicGroups", data || [], false);
+}
+
+
+// =================================
+// ZOBRAZENIE SKUPÍN
+// =================================
+
+function renderGroups(elementId, groups, isMine) {
+
+    const element = $(elementId);
+
+    if (!groups.length) {
+        element.innerHTML =
+            '<div class="empty">Nenašli sa žiadne skupiny.</div>';
+        return;
+    }
+
+    element.innerHTML = groups.map(group => {
+
+        const alreadyMember = myGroupIds.includes(group.id);
+
+        return `
+            <div class="group">
+
+                <span class="tag">${safe(group.subject)}</span>
+
+                <h3>${safe(group.name)}</h3>
+
+                <p>${safe(group.description || "Bez popisu.")}</p>
+
+                <div class="group-info">
+                    <span>${group.is_public ? "🌎 Verejná" : "🔒 Súkromná"}</span>
+                    <span>${isMine ? "Moja skupina" : "StudySpace"}</span>
+                </div>
+
+                <button class="secondary"
+                    onclick="openGroup('${group.id}')">
+                    Zobraziť skupinu
+                </button>
+
+                ${!isMine && !alreadyMember ? `
+                    <button onclick="joinPublicGroup('${group.id}')">
+                        Pripojiť sa
+                    </button>
+                ` : ""}
+
+            </div>
+        `;
+    }).join("");
+}
+
+
+// =================================
+// VYHĽADÁVANIE
+// =================================
+
+$("search").addEventListener("input", async function() {
+
+    const query = this.value.trim();
+
+    const { data, error } = await supabase
+        .from("study_groups")
+        .select("*")
+        .eq("is_public", true)
+        .order("created_at", {ascending:false});
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    const filtered = (data || []).filter(group =>
+        (group.name || "").toLowerCase().includes(query.toLowerCase()) ||
+        (group.subject || "").toLowerCase().includes(query.toLowerCase())
+    );
+
+    renderGroups("publicGroups", filtered, false);
+});
+
+
+// =================================
+// VYTVORENIE SKUPINY
+// =================================
+
+$("createForm").addEventListener("submit", async function(e) {
+
+    e.preventDefault();
+
+    const button = $("createButton");
+    const error = $("createError");
+
+    error.textContent = "";
+    button.disabled = true;
+    button.textContent = "Vytváram...";
+
+    try {
+
+        const { error: createError } = await supabase.rpc(
+            "create_study_group",
+            {
+                p_name: $("groupName").value.trim(),
+                p_description: $("groupDescription").value.trim(),
+                p_subject: $("groupSubject").value,
+                p_is_public: $("groupVisibility").value === "true"
+            }
+        );
+
+        if (createError) throw createError;
+
+        closeCreate();
+
+        await refreshGroups();
+
+    } catch (err) {
+
+        error.textContent = err.message || "Skupinu sa nepodarilo vytvoriť.";
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "Vytvoriť";
+    }
+});
+
+
+// =================================
+// PRIPOJENIE CEZ KÓD
+// =================================
+
+async function joinWithCode() {
+
+    const code = $("inviteCode").value.trim().toUpperCase();
+
+    if (!code) {
+        $("joinError").textContent = "Zadaj pozývací kód.";
+        return;
+    }
+
+    try {
+
+        const { error } = await supabase.rpc(
+            "join_study_group",
+            {p_invite_code: code}
+        );
+
+        if (error) throw error;
+
+        closeJoin();
+        await refreshGroups();
+
+    } catch (err) {
+
+        $("joinError").textContent =
+            err.message || "Nepodarilo sa pripojiť ku skupine.";
+    }
+}
+
+
+// =================================
+// PRIPOJENIE K VEREJNEJ SKUPINE
+// =================================
+
+async function joinPublicGroup(groupId) {
+
+    const { error } = await supabase.rpc(
+        "join_public_group",
+        {p_group_id: groupId}
+    );
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    await refreshGroups();
+}
+
+
+// =================================
+// DETAIL SKUPINY
+// =================================
+
+async function openGroup(id) {
+
+    const { data: group, error } = await supabase
+        .from("study_groups")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    selectedGroup = group;
+
+    const { data: members, error: memberError } = await supabase
+        .from("group_members")
+        .select("user_id, role")
+        .eq("group_id", id);
+
+    if (memberError) {
+        alert(memberError.message);
+        return;
+    }
+
+    $("detailName").textContent = group.name;
+    $("detailDescription").textContent =
+        group.description || "Bez popisu.";
+
+    $("detailSubject").textContent = group.subject;
+    $("detailMembers").textContent =
+        `${members.length} členov`;
+
+    const isOwner = group.owner_id === currentUser.id;
+
+    $("inviteArea").innerHTML = isOwner ? `
+        <p class="muted">Pozývací kód tvojej skupiny:</p>
+        <div class="code">${safe(group.invite_code)}</div>
+        <button class="secondary" onclick="copyCode()">
+            Kopírovať kód
+        </button>
+    ` : "";
+
+    $("leaveButton").style.display =
+        isOwner ? "none" : "inline-block";
+
+    if (members.length) {
+
+        const ids = members.map(m => m.user_id);
+
+        const { data: profiles, error: profileError } =
+            await supabase
+                .from("profiles")
+                .select("id, first_name, avatar_url")
+                .in("id", ids);
+
+        if (profileError) throw profileError;
+
+        $("membersList").innerHTML = members.map(member => {
+
+            const profile = profiles.find(
+                p => p.id === member.user_id
+            );
+
+            return `
+                <div class="member">
+                    <img src="${safe(profile?.avatar_url ||
+                        "https://placehold.co/80x80/241735/ffffff?text=+")}"
+                        alt="">
+                    <span class="member-name">
+                        ${safe(profile?.first_name || "Študent")}
+                    </span>
+                    <span class="muted">
+                        ${member.role === "owner" ? "Zakladateľ" : "Člen"}
+                    </span>
+                </div>
+            `;
+        }).join("");
+
+    } else {
+        $("membersList").innerHTML =
+            '<p class="empty">Zatiaľ bez členov.</p>';
+    }
+
+    $("groupDetails").style.display = "block";
+    $("groupDetails").scrollIntoView({behavior:"smooth"});
+}
+
+function copyCode() {
+
+    if (selectedGroup?.invite_code) {
+        navigator.clipboard.writeText(selectedGroup.invite_code);
+        alert("Pozývací kód bol skopírovaný!");
+    }
+}
+
+function closeDetails() {
+    $("groupDetails").style.display = "none";
+}
+
+
+// =================================
+// OPUSTENIE SKUPINY
+// =================================
+
+async function leaveGroup() {
+
+    if (!selectedGroup) return;
+
+    if (!confirm("Naozaj chceš opustiť túto skupinu?")) return;
+
+    const { error } = await supabase.rpc(
+        "leave_study_group",
+        {p_group_id: selectedGroup.id}
+    );
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    closeDetails();
+    await refreshGroups();
+}
+
+
+// =================================
+// OBNOVENIE
+// =================================
+
+async function refreshGroups() {
+
+    await loadMyGroups();
+    await loadPublicGroups();
+}
+
+
+// =================================
+// SPUSTENIE
+// =================================
+
+async function init() {
+
+    const { data: {session}, error } =
+        await supabase.auth.getSession();
+
+    if (error) throw error;
+
+    if (!session) {
+
+        $("status").textContent = "Nie si prihlásený/á";
+
+        $("myGroups").innerHTML =
+            '<p class="empty">Najskôr sa prihlás.</p>';
+
+        $("publicGroups").innerHTML =
+            '<p class="empty">Najskôr sa prihlás.</p>';
+
+        return;
+    }
+
+    currentUser = session.user;
+
+    await refreshGroups();
+
+    $("status").textContent = "Social · StudySpace";
+}
+
+init().catch(error => {
+    console.error(error);
+    $("status").textContent = "Chyba pri načítaní";
+});
+
+</script>
+
+</body>
+</html>
