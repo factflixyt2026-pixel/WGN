@@ -1,0 +1,201 @@
+<!doctype html><html lang="sk"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WayGo database setup</title><style>body{background:#0b0714;color:#f8f3ff;font:15px Arial;padding:24px;max-width:1000px;margin:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#171025;padding:20px;border:1px solid #493263;border-radius:16px;max-height:75vh;overflow:auto}button{background:#a855f7;color:white;padding:12px 18px;border:0;border-radius:12px}</style><h1>WayGo · Databázové nastavenie</h1><p>Skopíruj SQL a spusti ho v Supabase → SQL Editor.</p><button onclick="navigator.clipboard.writeText(document.querySelector('pre').innerText).then(()=>alert('Skopírované'))">Kopírovať SQL</button><pre>-- WAYGO: spusti celý súbor v Supabase → SQL Editor.
+-- Pred spustením si vytvor Supabase projekt a zapni Email + Google/Apple providera.
+create extension if not exists pgcrypto;
+
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  first_name text not null default &#x27;&#x27;,
+  avatar_url text,
+  is_vip boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.notes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text not null,
+  body text not null default &#x27;&#x27;,
+  color text not null default &#x27;violet&#x27;,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.calendar_events (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text not null,
+  details text not null default &#x27;&#x27;,
+  starts_at timestamptz not null,
+  ends_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.learning_sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  subject text not null,
+  minutes integer not null check (minutes &gt; 0 and minutes &lt;= 1440),
+  learned_on date not null default current_date,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.posts (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid not null references auth.users(id) on delete cascade,
+  category text not null default &#x27;mix&#x27;,
+  title text not null,
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references public.posts(id) on delete cascade,
+  author_id uuid not null references auth.users(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 2000),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.post_likes (
+  post_id uuid not null references public.posts(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key(post_id, user_id)
+);
+
+create table if not exists public.study_groups (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  description text not null default &#x27;&#x27;,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.group_members (
+  group_id uuid not null references public.study_groups(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  role text not null default &#x27;member&#x27; check (role in (&#x27;owner&#x27;,&#x27;member&#x27;)),
+  created_at timestamptz not null default now(),
+  primary key(group_id,user_id)
+);
+
+-- Admin je určený výhradne dôveryhodným app_metadata (nastavuje ho vlastník projektu
+-- cez Supabase Dashboard / Admin API, nikdy nie z klientského JavaScriptu).
+create or replace function public.is_waygo_admin()
+returns boolean language sql stable security definer set search_path = public
+as $$ select coalesce(auth.jwt()-&gt;&#x27;app_metadata&#x27;-&gt;&gt;&#x27;role&#x27;,&#x27;&#x27;) = &#x27;admin&#x27; $$;
+
+create or replace function public.is_waygo_vip()
+returns boolean language sql stable security definer set search_path = public
+as $$ select coalesce((select is_vip from public.profiles where id = auth.uid()), false) $$;
+
+alter table public.profiles enable row level security;
+alter table public.notes enable row level security;
+alter table public.calendar_events enable row level security;
+alter table public.learning_sessions enable row level security;
+alter table public.posts enable row level security;
+alter table public.comments enable row level security;
+alter table public.post_likes enable row level security;
+alter table public.study_groups enable row level security;
+alter table public.group_members enable row level security;
+
+-- Profily: prihlásený používateľ môže čítať mená/avatarov (leaderboard),
+-- meniť iba svoj profil; VIP flag môže meniť iba admin.
+drop policy if exists &quot;profiles readable&quot; on public.profiles;
+create policy &quot;profiles readable&quot; on public.profiles for select to authenticated using (true);
+drop policy if exists &quot;profile insert self&quot; on public.profiles;
+create policy &quot;profile insert self&quot; on public.profiles for insert to authenticated with check (id = auth.uid() and is_vip = false);
+drop policy if exists &quot;profile update self&quot; on public.profiles;
+create policy &quot;profile update self&quot; on public.profiles for update to authenticated
+using (id = auth.uid() or public.is_waygo_admin())
+with check (id = auth.uid() or public.is_waygo_admin());
+
+-- Dodatočná ochrana: bežný používateľ si nemôže zmeniť VIP flag.
+create or replace function public.protect_profile_vip()
+returns trigger language plpgsql security definer set search_path = public
+as $$
+begin
+  if not public.is_waygo_admin() and new.is_vip is distinct from old.is_vip then
+    raise exception &#x27;VIP môže meniť iba administrátor&#x27;;
+  end if;
+  return new;
+end; $$;
+drop trigger if exists protect_profile_vip_trigger on public.profiles;
+create trigger protect_profile_vip_trigger before update on public.profiles
+for each row execute procedure public.protect_profile_vip();
+
+create policy &quot;notes own&quot; on public.notes for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy &quot;events own&quot; on public.calendar_events for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy &quot;sessions own read&quot; on public.learning_sessions for select to authenticated using (user_id = auth.uid());
+create policy &quot;sessions own insert&quot; on public.learning_sessions for insert to authenticated with check (
+  user_id = auth.uid() and minutes &gt; 0 and
+  (public.is_waygo_vip() or (
+    select count(*) from public.learning_sessions s
+    where s.user_id = auth.uid()
+      and date_trunc(&#x27;month&#x27;, s.learned_on::timestamp) = date_trunc(&#x27;month&#x27;, current_date::timestamp)
+  ) &lt; 20
+));
+
+create policy &quot;posts readable&quot; on public.posts for select to authenticated using (true);
+create policy &quot;posts create own&quot; on public.posts for insert to authenticated with check (author_id = auth.uid());
+create policy &quot;posts edit own or admin&quot; on public.posts for update to authenticated using (author_id = auth.uid() or public.is_waygo_admin()) with check (author_id = auth.uid() or public.is_waygo_admin());
+create policy &quot;posts delete own or admin&quot; on public.posts for delete to authenticated using (author_id = auth.uid() or public.is_waygo_admin());
+
+create policy &quot;comments readable&quot; on public.comments for select to authenticated using (true);
+create policy &quot;comments create own&quot; on public.comments for insert to authenticated with check (author_id = auth.uid());
+create policy &quot;comments delete own or admin&quot; on public.comments for delete to authenticated using (author_id = auth.uid() or public.is_waygo_admin());
+
+create policy &quot;likes readable&quot; on public.post_likes for select to authenticated using (true);
+create policy &quot;likes own insert&quot; on public.post_likes for insert to authenticated with check (user_id = auth.uid());
+create policy &quot;likes own delete&quot; on public.post_likes for delete to authenticated using (user_id = auth.uid());
+
+create policy &quot;groups readable&quot; on public.study_groups for select to authenticated using (true);
+create policy &quot;groups create own&quot; on public.study_groups for insert to authenticated with check (owner_id = auth.uid());
+create policy &quot;groups edit owner admin&quot; on public.study_groups for update to authenticated using (owner_id = auth.uid() or public.is_waygo_admin()) with check (owner_id = auth.uid() or public.is_waygo_admin());
+create policy &quot;groups delete owner admin&quot; on public.study_groups for delete to authenticated using (owner_id = auth.uid() or public.is_waygo_admin());
+
+create policy &quot;members readable&quot; on public.group_members for select to authenticated using (true);
+create policy &quot;join self&quot; on public.group_members for insert to authenticated with check (user_id = auth.uid() and role = &#x27;member&#x27;);
+create policy &quot;group owner membership&quot; on public.group_members for insert to authenticated with check (
+  role = &#x27;owner&#x27; and exists (select 1 from public.study_groups g where g.id = group_id and g.owner_id = auth.uid())
+);
+create policy &quot;leave self&quot; on public.group_members for delete to authenticated using (user_id = auth.uid() or public.is_waygo_admin());
+
+-- Admin-only RPC. Bezpečná kontrola role prebehne na databáze.
+create or replace function public.admin_set_vip(target_user uuid, vip_value boolean)
+returns void language plpgsql security definer set search_path = public
+as $$
+begin
+  if not public.is_waygo_admin() then
+    raise exception &#x27;Prístup zamietnutý&#x27;;
+  end if;
+  update public.profiles set is_vip = vip_value where id = target_user;
+  if not found then raise exception &#x27;Používateľ nemá vytvorený profil&#x27;; end if;
+end; $$;
+revoke all on function public.admin_set_vip(uuid, boolean) from public;
+grant execute on function public.admin_set_vip(uuid, boolean) to authenticated;
+
+-- Vytvorenie profilu po registrácii. is_vip je vždy false.
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public
+as $$
+begin
+  insert into public.profiles(id, first_name)
+  values(new.id, coalesce(new.raw_user_meta_data-&gt;&gt;&#x27;first_name&#x27;,&#x27;&#x27;))
+  on conflict (id) do nothing;
+  return new;
+end; $$;
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created after insert on auth.users
+for each row execute procedure public.handle_new_user();
+
+-- Storage bucket pre profilové fotky (spustiť raz; ak už existuje, ignoruj chybu).
+insert into storage.buckets(id,name,public) values (&#x27;avatars&#x27;,&#x27;avatars&#x27;,true)
+on conflict (id) do nothing;
+create policy &quot;Avatar images public read&quot; on storage.objects for select using (bucket_id = &#x27;avatars&#x27;);
+create policy &quot;Users upload own avatar&quot; on storage.objects for insert to authenticated
+with check (bucket_id = &#x27;avatars&#x27; and (storage.foldername(name))[1] = auth.uid()::text);
+create policy &quot;Users update own avatar&quot; on storage.objects for update to authenticated
+using (bucket_id = &#x27;avatars&#x27; and (storage.foldername(name))[1] = auth.uid()::text)
+with check (bucket_id = &#x27;avatars&#x27; and (storage.foldername(name))[1] = auth.uid()::text);
+</pre></html>
