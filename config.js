@@ -197,3 +197,8 @@ async function checkSession() {
 checkSession();
 
 console.log("WayGo successfully initialized!");
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+
+</body>
+</html>
