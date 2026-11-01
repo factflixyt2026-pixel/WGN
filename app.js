@@ -1,4 +1,7 @@
-
+if (typeof supabase === "undefined" || !supabase.auth) {
+    console.error("WayGo: Supabase klient nie je inicializovaný!");
+    throw new Error("Supabase initialization failed.");
+}
 const authForm = document.getElementById("authForm");
 const loginTab = document.getElementById("loginTab");
 const signupTab = document.getElementById("signupTab");
