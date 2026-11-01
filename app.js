@@ -8,7 +8,27 @@ function msg(t,bad=false){let el=$('#message');if(el){el.textContent=t;el.classN
 function needDb(){if(!db){msg('Najprv nastav SUPABASE_URL a SUPABASE_ANON_KEY v config.js.',true);return false}return true}
 async function init(){if(!needDb())return;const {data:{session}}=await db.auth.getSession();user=session?.user||null;if(user){await loadProfile();if(!profile?.first_name){location.href='account.html?setup=1';return}}renderPage();db.auth.onAuthStateChange((_e,s)=>{user=s?.user||null;if(!user&&!['login.html','signup.html','index.html'].includes(location.pathname.split('/').pop()))location.href='login.html'})}
 async function loadProfile(){let {data}=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();profile=data}
-function nav(active){return `<nav class="bottom"><a class="navitem ${active==='social'?'active':''}" href="social.html"><b>♧</b>Skupiny</a><a class="navitem ${active==='home'?'active':''}" href="home.html"><b>⌂</b>Domov</a><a class="navitem ${active==='account'?'active':''}" href="account.html"><b>◉</b>Účet</a></nav>`}
+
+function nav(active) {
+    return `
+        <nav class="bottom">
+            <a class="navitem ${active === 'social' ? 'active' : ''}"
+               href="social.html" aria-label="Skupiny">
+                <b>♧</b>
+            </a>
+
+            <a class="navitem ${active === 'home' ? 'active' : ''}"
+               href="home.html" aria-label="Domov">
+                <b>⌂</b>
+            </a>
+
+            <a class="navitem ${active === 'account' ? 'active' : ''}"
+               href="account.html" aria-label="Účet">
+                <b>♙</b>
+            </a>
+        </nav>
+    `;
+}
 function shell(content,active){$('#app').innerHTML=`<main class="wrap"><header class="top"><a class="brand" href="home.html">WG <span>WayGo</span></a><button class="btn secondary" id="logout">Odhlásiť</button></header>${content}</main>${nav(active)}`;$('#logout')?.addEventListener('click',async()=>{await db.auth.signOut();location.href='login.html'})}
 function page(){return location.pathname.split('/').pop()||'index.html'}
 function renderPage(){const p=page();if(p==='home.html')home();else if(p==='account.html')account();else if(p==='notes.html')notes();else if(p==='calendar.html')calendar();else if(p==='stats.html')stats();else if(p==='social.html')social();else if(p==='admin.html')admin();else if(p==='successful.html')success();else home()}
@@ -238,7 +258,136 @@ async function authPage(mode) {
 }
 
 async function success(){if(!needDb())return;let {data:{session}}=await db.auth.getSession();if(!session){location.href='login.html';return}user=session.user;await loadProfile();$('#app').innerHTML='<section class="auth card center"><div class="brand">WG <span>WayGo</span></div><h1 class="success">Úspešne prihlásený/á!</h1><p class="muted">Tvoj účet je pripravený.</p><button class="btn" id="go">Pokračovať</button></section>';$('#go').onclick=()=>location.href=profile?.first_name?'home.html':'account.html?setup=1'}
-async function home(){let content=`<h1>Objav, čo sa môžeš naučiť.</h1><p class="muted">Vyber kategórie alebo nechaj výber na WayGo.</p><div class="row" id="maincats"><button class="pill active" data-c="mix">Všetko</button><button class="pill" data-c="lf">LF UK</button><button class="pill" data-c="maturita">Maturita</button></div><div class="row" id="subcats" style="margin-top:12px"></div><input id="search" class="field" placeholder="Hľadať príspevky…"><div id="feed"></div>`;shell(content,'home');let main='mix',sub='';const subs={lf:['Biológia','Chémia','SCIO'],maturita:['Slovenčina','Angličtina','Matematika','Biológia','Chémia','Fyzika','Dejepis','Geografia','Občianska náuka','Informatika'],mix:[]};function filters(){ $('#maincats').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.c===main));$('#subcats').innerHTML=(subs[main]||[]).map(x=>`<button class="pill ${sub===x?'active':''}" data-sub="${esc(x)}">${esc(x)}</button>`).join('');$('#subcats').querySelectorAll('button').forEach(b=>b.onclick=()=>{sub=sub===b.dataset.sub?'':b.dataset.sub;filters();loadFeed()})}$('#maincats').querySelectorAll('button').forEach(b=>b.onclick=()=>{main=b.dataset.c;sub='';filters();loadFeed()});filters();$('#search').oninput=loadFeed;await loadFeed();async function loadFeed(){let q=db.from('posts').select('*,profiles(first_name,avatar_url),comments(count),post_likes(count)').order('created_at',{ascending:false}).limit(50);if(main!=='mix')q=q.eq('category',main);if(sub)q=q.eq('title',sub);let {data,error}=await q;if(error){$('#feed').innerHTML='<div class="notice">Príspevky sa nepodarilo načítať.</div>';return}let term=$('#search').value.toLowerCase();data=(data||[]).filter(x=>(x.title+x.body).toLowerCase().includes(term));$('#feed').innerHTML=data.length?data.map(x=>`<article class="card post"><div><div class="small muted">${esc(x.profiles?.first_name||'Študent')} · ${new Date(x.created_at).toLocaleDateString('sk-SK')}</div><h2>${esc(x.title)}</h2><p>${esc(x.body)}</p></div><div class="row"><button class="pill like" data-id="${x.id}">♡ ${x.post_likes?.[0]?.count||0}</button><a class="pill" href="social.html">Komentáre · ${x.comments?.[0]?.count||0}</a></div></article>`).join(''):'<div class="card muted">Zatiaľ tu nie sú žiadne príspevky.</div>';$('#feed').querySelectorAll('.like').forEach(b=>b.onclick=async()=>{let id=b.dataset.id;let {data:liked}=await db.from('post_likes').select('post_id').eq('post_id',id).eq('user_id',user.id).maybeSingle();if(liked)await db.from('post_likes').delete().eq('post_id',id).eq('user_id',user.id);else await db.from('post_likes').insert({post_id:id,user_id:user.id});loadFeed()})}}
+
+async function home() {
+
+    const materials = [
+        {
+            category: 'lf',
+            subject: 'Biológia',
+            title: 'Bunková biológia',
+            description: 'Základná stavebná a funkčná jednotka živých organizmov.',
+            content: `
+                <h3>Čo je bunka?</h3>
+                <p>Bunka je základná stavebná a funkčná jednotka všetkých živých organizmov.</p>
+
+                <h3>Základné organely</h3>
+                <ul>
+                    <li><b>Jadro</b> – obsahuje genetickú informáciu.</li>
+                    <li><b>Mitochondrie</b> – zabezpečujú tvorbu energie.</li>
+                    <li><b>Ribozómy</b> – syntéza bielkovín.</li>
+                </ul>
+            `
+        },
+        {
+            category: 'lf',
+            subject: 'Chémia',
+            title: 'Organická chémia',
+            description: 'Úvod do organických zlúčenín a ich vlastností.',
+            content: `
+                <h3>Čo skúma organická chémia?</h3>
+                <p>Organická chémia sa zaoberá zlúčeninami uhlíka, ich štruktúrou, vlastnosťami a reakciami.</p>
+                <h3>Základné pojmy</h3>
+                <ul>
+                    <li>Uhlíkový reťazec</li>
+                    <li>Funkčné skupiny</li>
+                    <li>Izoméria</li>
+                </ul>
+            `
+        },
+        {
+            category: 'maturita',
+            subject: 'Slovenčina',
+            title: 'Literárne druhy',
+            description: 'Prehľad základných literárnych druhov.',
+            content: `
+                <h3>Základné literárne druhy</h3>
+                <ul>
+                    <li>Epika</li>
+                    <li>Lyrika</li>
+                    <li>Dráma</li>
+                </ul>
+            `
+        }
+    ];
+
+    let active = 'mix';
+
+    shell(`
+        <div class="home-feed">
+
+            <header class="feed-header">
+                <div class="brand">WG <span>WayGo</span></div>
+                <h1>Pre teba</h1>
+                <p class="muted">Objavuj, čítaj a uč sa.</p>
+            </header>
+
+            <div class="feed-filters">
+                <button class="pill active" data-filter="mix">Všetko</button>
+                <button class="pill" data-filter="lf">LF UK</button>
+                <button class="pill" data-filter="maturita">Maturita</button>
+            </div>
+
+            <div class="feed-heading">
+                <h2>Najnovšie materiály</h2>
+            </div>
+
+            <div id="study-feed"></div>
+
+        </div>
+    `, 'home');
+
+    function renderFeed() {
+
+        const filtered = active === 'mix'
+            ? materials
+            : materials.filter(item => item.category === active);
+
+        $('#study-feed').innerHTML = filtered.length
+            ? filtered.map(item => `
+                <article class="card study-post">
+
+                    <div class="post-category">
+                        ${item.category === 'lf' ? 'LF UK' : 'MATURITA'}
+                        · ${esc(item.subject.toUpperCase())}
+                    </div>
+
+                    <h2>${esc(item.title)}</h2>
+
+                    <p class="muted">${esc(item.description)}</p>
+
+                    <div class="study-content">
+                        ${item.content}
+                    </div>
+
+                    <div class="post-footer">
+                        <span>📚 Študijný materiál</span>
+                        <span>WayGo</span>
+                    </div>
+
+                </article>
+            `).join('')
+            : '<div class="card muted">Zatiaľ tu nie sú žiadne materiály.</div>';
+    }
+
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', () => {
+
+            active = button.dataset.filter;
+
+            document.querySelectorAll('[data-filter]').forEach(b => {
+                b.classList.toggle(
+                    'active',
+                    b.dataset.filter === active
+                );
+            });
+
+            renderFeed();
+        });
+    });
+
+    renderFeed();
+}
 async function account(){let setup=new URLSearchParams(location.search).has('setup');shell(`<div class="center"><h1>Môj účet</h1><img id="avatar" class="avatar" src="${esc(profile?.avatar_url||'')}" onerror="this.style.opacity=.2"><h2>${esc(profile?.first_name||'')}</h2>${profile?.is_vip?'<span class="pill active">✦ VIP</span>':''}</div>${setup?'<div class="card"><h2>Dokonči profil</h2><label class="label">Krstné meno</label><input id="first" class="field" placeholder="Krstné meno"><label class="label">Profilová fotka</label><input id="photo" class="field" type="file" accept="image/*"><button id="saveprofile" class="btn">Uložiť profil</button></div>':''}<div class="grid"><a class="card" href="notes.html"><h2>▤ Poznámky</h2><p class="muted">Tvoje študijné zápisky</p></a><a class="card" href="calendar.html"><h2>▦ Kalendár</h2><p class="muted">Plán učenia a termíny</p></a><a class="card" href="stats.html"><h2>↗ Štatistiky</h2><p class="muted">Prehľad učenia</p></a></div><div class="card"><h2>Najlepší študenti mesiaca</h2><div id="monthly" class="muted">Načítavam…</div></div><div class="card"><h2>Najlepší študenti roka</h2><div id="yearly" class="muted">Načítavam…</div></div>${profile?.is_vip?'':'<p class="small muted">Bezplatný účet: limit 20 študijných záznamov mesačne. VIP účet má neobmedzené zaznamenávanie učenia.</p>'}${profile?.is_vip||false?'':'<a class="small" href="admin.html">Administrácia</a>'}`, 'account');if(setup){$('#first').value=profile?.first_name||'';$('#saveprofile').onclick=async()=>{let first=$('#first').value.trim(),file=$('#photo').files[0];if(!first)return msg('Zadaj krstné meno.',true);let avatar_url=profile?.avatar_url;if(file){let path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g,'_')}`;let up=await db.storage.from('avatars').upload(path,file,{upsert:true});if(up.error)return msg(up.error.message,true);avatar_url=db.storage.from('avatars').getPublicUrl(path).data.publicUrl}let {error}=await db.from('profiles').upsert({id:user.id,first_name:first,avatar_url,is_vip:profile?.is_vip||false});if(error)return msg(error.message,true);await loadProfile();location.href='account.html'}};await leaderboard('monthly');await leaderboard('yearly');async function leaderboard(id){let start=new Date();if(id==='monthly')start.setDate(1);else start=new Date(start.getFullYear(),0,1);let {data}=await db.from('learning_sessions').select('user_id,minutes').gte('learned_on',start.toISOString().slice(0,10));let totals={};(data||[]).forEach(x=>totals[x.user_id]=(totals[x.user_id]||0)+x.minutes);let sorted=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,5);let ids=sorted.map(x=>x[0]);let names={};if(ids.length){let {data:ps}=await db.from('profiles').select('id,first_name').in('id',ids);(ps||[]).forEach(p=>names[p.id]=p.first_name)}$('#'+id).innerHTML=sorted.length?sorted.map(([uid,m],i)=>`${i+1}. ${esc(names[uid]||'Študent')} — ${Math.round(m/60*10)/10} h`).join('<br>'):'Zatiaľ bez údajov.'}}
 async function notes(){shell(`<h1>Poznámky</h1><p class="muted">Vytváraj a upravuj vlastné poznámky.</p><div class="card"><input id="ntitle" class="field" placeholder="Názov poznámky"><textarea id="nbody" class="field" rows="5" placeholder="Napíš si poznámku…"></textarea><button id="addnote" class="btn">Uložiť poznámku</button></div><div id="noteslist"></div>`,'account');$('#addnote').onclick=async()=>{let title=$('#ntitle').value.trim(),body=$('#nbody').value.trim();if(!title)return msg('Zadaj názov poznámky.',true);let {error}=await db.from('notes').insert({user_id:user.id,title,body});if(error)return msg(error.message,true);$('#ntitle').value='';$('#nbody').value='';load()};load();async function load(){let {data,error}=await db.from('notes').select('*').eq('user_id',user.id).order('updated_at',{ascending:false});$('#noteslist').innerHTML=error?'Nepodarilo sa načítať poznámky.':(data||[]).map(n=>`<div class="card"><input class="field title" value="${esc(n.title)}"><textarea class="field body" rows="4">${esc(n.body)}</textarea><div class="row"><button class="btn save" data-id="${n.id}">Uložiť zmeny</button><button class="btn danger del" data-id="${n.id}">Vymazať</button></div></div>`).join('')||'<p class="muted">Zatiaľ nemáš poznámky.</p>';$('#noteslist').querySelectorAll('.save').forEach(b=>b.onclick=async()=>{let c=b.closest('.card');let {error}=await db.from('notes').update({title:c.querySelector('.title').value,body:c.querySelector('.body').value,updated_at:new Date().toISOString()}).eq('id',b.dataset.id);msg(error?.message||'Poznámka uložená.',!!error)});$('#noteslist').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{if(confirm('Naozaj vymazať poznámku?')){await db.from('notes').delete().eq('id',b.dataset.id);load()}})}}
 async function calendar(){shell(`<h1>Kalendár</h1><p class="muted">Plánuj testy, učenie a dôležité termíny.</p><div class="card"><input id="etitle" class="field" placeholder="Názov udalosti"><textarea id="edetails" class="field" rows="2" placeholder="Podrobnosti"></textarea><label class="label">Dátum a čas</label><input id="edate" class="field" type="datetime-local"><button id="addevent" class="btn">Pridať do kalendára</button></div><div id="events"></div>`,'account');$('#edate').value=new Date(Date.now()+3600000).toISOString().slice(0,16);$('#addevent').onclick=async()=>{let title=$('#etitle').value.trim(),starts_at=new Date($('#edate').value).toISOString();if(!title)return msg('Zadaj názov udalosti.',true);let {error}=await db.from('calendar_events').insert({user_id:user.id,title,details:$('#edetails').value,starts_at});if(error)return msg(error.message,true);$('#etitle').value='';load()};load();async function load(){let {data,error}=await db.from('calendar_events').select('*').eq('user_id',user.id).order('starts_at');$('#events').innerHTML=error?'Nepodarilo sa načítať udalosti.':(data||[]).map(e=>`<div class="card row" style="justify-content:space-between"><div><h3>${esc(e.title)}</h3><p class="muted small">${new Date(e.starts_at).toLocaleString('sk-SK')} · ${esc(e.details)}</p></div><button class="btn danger del" data-id="${e.id}">Zmazať</button></div>`).join('')||'<p class="muted">Kalendár je zatiaľ prázdny.</p>';$('#events').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{await db.from('calendar_events').delete().eq('id',b.dataset.id);load()})}}
