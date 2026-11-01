@@ -12,11 +12,231 @@ function nav(active){return `<nav class="bottom"><a class="navitem ${active==='s
 function shell(content,active){$('#app').innerHTML=`<main class="wrap"><header class="top"><a class="brand" href="home.html">WG <span>WayGo</span></a><button class="btn secondary" id="logout">Odhlásiť</button></header>${content}</main>${nav(active)}`;$('#logout')?.addEventListener('click',async()=>{await db.auth.signOut();location.href='login.html'})}
 function page(){return location.pathname.split('/').pop()||'index.html'}
 function renderPage(){const p=page();if(p==='home.html')home();else if(p==='account.html')account();else if(p==='notes.html')notes();else if(p==='calendar.html')calendar();else if(p==='stats.html')stats();else if(p==='social.html')social();else if(p==='admin.html')admin();else if(p==='successful.html')success();else home()}
-async function authPage(mode){if(!needDb())return;const signup=mode==='signup';$('#app').innerHTML=`<section class="auth card"><div class="center brand">WG <span>WayGo</span></div><h1 class="center">${signup?'Vytvor si účet':'Vitaj späť'}</h1><p class="muted center">${signup?'Začni sa učiť efektívnejšie.':'Prihlás sa do svojho účtu.'}</p><div id="message" class="notice hidden"></div>${signup?'<label class="label">Krstné meno</label><input id="first" class="field" placeholder="Tvoje meno">':''}<label class="label">E-mail</label><input id="email" class="field" type="email" autocomplete="email"><label class="label">Heslo</label><input id="password" class="field" type="password" autocomplete="${signup?'new-password':'current-password'}"><button id="submit" class="btn" style="width:100%">${signup?'Registrovať sa':'Prihlásiť sa'}</button><p class="small center"><a href="${signup?'login.html':'signup.html'}">${signup?'Už máš účet? Prihlás sa':'Nemáš účet? Zaregistruj sa'}</a></p>${!signup?'<p class="small center"><a href="#" id="forgot">Zabudnuté heslo?</a></p>':''}<hr style="border-color:var(--line);margin:20px 0"><button id="google" class="btn secondary" style="width:100%;margin-bottom:8px">Pokračovať cez Google</button><button id="apple" class="btn secondary" style="width:100%">Pokračovať cez Apple</button></section>`;
-$('#submit').onclick=async()=>{let email=$('#email').value.trim(),password=$('#password').value,first=$('#first')?.value.trim()||'';if(!email||!password||(signup&&!first))return msg('Vyplň všetky povinné polia.',true);let r=signup?await db.auth.signUp({email,password,options:{data:{first_name:first}}}):await db.auth.signInWithPassword({email,password});if(r.error)return msg(r.error.message,true);if(signup&&!r.data.session){msg('Skontroluj e-mail a potvrď registráciu.');return}location.href='successful.html'};
-for(const [id,provider] of [['google','google'],['apple','apple']])$('#'+id).onclick=async()=>{let {error}=await db.auth.signInWithOAuth({provider,options:{redirectTo:location.origin+'/successful.html'}});if(error)msg(error.message,true)};
-$('#forgot')?.addEventListener('click',async e=>{e.preventDefault();let email=$('#email').value.trim();if(!email)return msg('Najprv zadaj svoj e-mail.',true);let {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/reset.html'});msg(error?error.message:'Ak účet existuje, poslali sme odkaz na obnovu hesla. Skontroluj e-mail.')});
+
+async function authPage(mode) {
+    if (!needDb()) return;
+
+    const signup = mode === 'signup';
+
+    $('#app').innerHTML = `
+        <section class="auth card">
+
+            <!-- LOGO -->
+            <div class="center brand">
+                WG <span>WayGo</span>
+            </div>
+
+            <!-- NADPIS -->
+            <h1 class="center">
+                ${signup ? 'Vytvor si účet ✨' : 'Vitaj späť 👋'}
+            </h1>
+
+            <p class="muted center">
+                ${signup
+                    ? 'Začni svoju WayGo cestu.'
+                    : 'Tvoja ďalšia cesta začína práve tu.'}
+            </p>
+
+            <!-- SPRÁVY -->
+            <div id="message" class="notice hidden"></div>
+
+            <!-- REGISTRÁCIA -->
+            ${signup ? `
+                <label class="label">Krstné meno</label>
+                <input
+                    id="first"
+                    class="field"
+                    placeholder="Ako ťa máme volať?"
+                    autocomplete="given-name"
+                >
+            ` : ''}
+
+            <!-- EMAIL -->
+            <label class="label">E-mail</label>
+            <input
+                id="email"
+                class="field"
+                type="email"
+                placeholder="tvoj@email.com"
+                autocomplete="email"
+            >
+
+            <!-- HESLO -->
+            <label class="label">Heslo</label>
+            <input
+                id="password"
+                class="field"
+                type="password"
+                placeholder="Zadaj svoje heslo"
+                autocomplete="${signup ? 'new-password' : 'current-password'}"
+            >
+
+            <!-- HLAVNÉ TLAČIDLO -->
+            <button id="submit" class="btn">
+                ${signup ? 'Vytvoriť účet ✨' : 'Prihlásiť sa →'}
+            </button>
+
+            ${!signup ? `
+                <p class="small center">
+                    <a href="#" id="forgot">Zabudnuté heslo?</a>
+                </p>
+            ` : ''}
+
+            <!-- ODDEĽOVAČ -->
+            <div class="login-divider">
+                ALEBO POKRAČUJ POMOCOU
+            </div>
+
+            <!-- GOOGLE A APPLE -->
+            <div class="social-login">
+
+                <button
+                    type="button"
+                    id="google"
+                    class="social-btn"
+                    aria-label="Pokračovať cez Google"
+                    title="Google"
+                >
+                    <svg viewBox="0 0 48 48" aria-hidden="true">
+                        <path fill="#EA4335"
+                            d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+                        />
+                        <path fill="#4285F4"
+                            d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.76 7.18l7.73 6C44.42 38.05 46.98 31.9 46.98 24.55z"
+                        />
+                        <path fill="#FBBC05"
+                            d="M10.53 28.59A14.5 14.5 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.93 23.93 0 0 0 0 24c0 3.87.93 7.52 2.56 10.78l7.97-6.19z"
+                        />
+                        <path fill="#34A853"
+                            d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.14 1.44-4.89 2.3-8.18 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                        />
+                    </svg>
+                </button>
+
+                <button
+                    type="button"
+                    id="apple"
+                    class="social-btn"
+                    aria-label="Pokračovať cez Apple"
+                    title="Apple"
+                >
+                    <svg viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true">
+                        <path d="M16.37 12.57c.02 2.07 1.82 2.76 1.84 2.77-.02.05-.29 1.01-.95 2-.57.85-1.16 1.69-2.1 1.71-.92.02-1.22-.55-2.28-.55-1.06 0-1.4.53-2.27.57-.91.03-1.61-.92-2.18-1.77-1.17-1.7-2.06-4.8-.86-6.9.6-1.04 1.67-1.7 2.83-1.72.88-.02 1.71.6 2.25.6.54 0 1.55-.74 2.62-.63.45.02 1.7.18 2.5 1.34-.06.04-1.49.87-1.48 2.58ZM14.65 6.89c.48-.58.8-1.38.71-2.18-.69.03-1.53.46-2.03 1.04-.45.52-.84 1.33-.73 2.11.77.06 1.56-.39 2.05-.97Z"/>
+                    </svg>
+                </button>
+
+            </div>
+
+            <!-- REGISTRÁCIA / PRIHLÁSENIE -->
+            <p class="signup-link center">
+                ${signup
+                    ? 'Už máš účet? <a href="login.html">Prihlás sa</a>'
+                    : 'Nemáš ešte účet? <a href="signup.html">Zaregistruj sa ✨</a>'
+                }
+            </p>
+
+        </section>
+    `;
+
+    // EMAIL A HESLO
+    $('#submit').onclick = async () => {
+        const email = $('#email').value.trim();
+        const password = $('#password').value;
+        const first = $('#first')?.value.trim() || '';
+
+        if (!email || !password || (signup && !first)) {
+            return msg('Vyplň všetky povinné polia.', true);
+        }
+
+        const button = $('#submit');
+        button.disabled = true;
+        button.textContent = 'Načítavam...';
+
+        try {
+            const r = signup
+                ? await db.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: { first_name: first }
+                    }
+                })
+                : await db.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+            if (r.error) {
+                msg(r.error.message, true);
+                return;
+            }
+
+            if (signup && !r.data.session) {
+                msg(
+                    'Skontroluj e-mail a potvrď registráciu.'
+                );
+                return;
+            }
+
+            location.href = 'successful.html';
+
+        } catch (error) {
+            msg(error.message || 'Nastala chyba.', true);
+        } finally {
+            button.disabled = false;
+            button.textContent = signup
+                ? 'Vytvoriť účet ✨'
+                : 'Prihlásiť sa →';
+        }
+    };
+
+    // GOOGLE A APPLE OAUTH
+    for (const [id, provider] of [
+        ['google', 'google'],
+        ['apple', 'apple']
+    ]) {
+        $('#' + id).onclick = async () => {
+            const { error } = await db.auth.signInWithOAuth({
+                provider,
+                options: {
+                    redirectTo: location.origin + '/successful.html'
+                }
+            });
+
+            if (error) {
+                msg(error.message, true);
+            }
+        };
+    }
+
+    // ZABUDNUTÉ HESLO
+    $('#forgot')?.addEventListener('click', async e => {
+        e.preventDefault();
+
+        const email = $('#email').value.trim();
+
+        if (!email) {
+            return msg('Najprv zadaj svoj e-mail.', true);
+        }
+
+        const { error } = await db.auth.resetPasswordForEmail(
+            email,
+            {
+                redirectTo: location.origin + '/reset.html'
+            }
+        );
+
+        msg(
+            error
+                ? error.message
+                : 'Ak účet existuje, poslali sme odkaz na obnovu hesla. Skontroluj e-mail.',
+            !!error
+        );
+    });
 }
+
 async function success(){if(!needDb())return;let {data:{session}}=await db.auth.getSession();if(!session){location.href='login.html';return}user=session.user;await loadProfile();$('#app').innerHTML='<section class="auth card center"><div class="brand">WG <span>WayGo</span></div><h1 class="success">Úspešne prihlásený/á!</h1><p class="muted">Tvoj účet je pripravený.</p><button class="btn" id="go">Pokračovať</button></section>';$('#go').onclick=()=>location.href=profile?.first_name?'home.html':'account.html?setup=1'}
 async function home(){let content=`<h1>Objav, čo sa môžeš naučiť.</h1><p class="muted">Vyber kategórie alebo nechaj výber na WayGo.</p><div class="row" id="maincats"><button class="pill active" data-c="mix">Všetko</button><button class="pill" data-c="lf">LF UK</button><button class="pill" data-c="maturita">Maturita</button></div><div class="row" id="subcats" style="margin-top:12px"></div><input id="search" class="field" placeholder="Hľadať príspevky…"><div id="feed"></div>`;shell(content,'home');let main='mix',sub='';const subs={lf:['Biológia','Chémia','SCIO'],maturita:['Slovenčina','Angličtina','Matematika','Biológia','Chémia','Fyzika','Dejepis','Geografia','Občianska náuka','Informatika'],mix:[]};function filters(){ $('#maincats').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.c===main));$('#subcats').innerHTML=(subs[main]||[]).map(x=>`<button class="pill ${sub===x?'active':''}" data-sub="${esc(x)}">${esc(x)}</button>`).join('');$('#subcats').querySelectorAll('button').forEach(b=>b.onclick=()=>{sub=sub===b.dataset.sub?'':b.dataset.sub;filters();loadFeed()})}$('#maincats').querySelectorAll('button').forEach(b=>b.onclick=()=>{main=b.dataset.c;sub='';filters();loadFeed()});filters();$('#search').oninput=loadFeed;await loadFeed();async function loadFeed(){let q=db.from('posts').select('*,profiles(first_name,avatar_url),comments(count),post_likes(count)').order('created_at',{ascending:false}).limit(50);if(main!=='mix')q=q.eq('category',main);if(sub)q=q.eq('title',sub);let {data,error}=await q;if(error){$('#feed').innerHTML='<div class="notice">Príspevky sa nepodarilo načítať.</div>';return}let term=$('#search').value.toLowerCase();data=(data||[]).filter(x=>(x.title+x.body).toLowerCase().includes(term));$('#feed').innerHTML=data.length?data.map(x=>`<article class="card post"><div><div class="small muted">${esc(x.profiles?.first_name||'Študent')} · ${new Date(x.created_at).toLocaleDateString('sk-SK')}</div><h2>${esc(x.title)}</h2><p>${esc(x.body)}</p></div><div class="row"><button class="pill like" data-id="${x.id}">♡ ${x.post_likes?.[0]?.count||0}</button><a class="pill" href="social.html">Komentáre · ${x.comments?.[0]?.count||0}</a></div></article>`).join(''):'<div class="card muted">Zatiaľ tu nie sú žiadne príspevky.</div>';$('#feed').querySelectorAll('.like').forEach(b=>b.onclick=async()=>{let id=b.dataset.id;let {data:liked}=await db.from('post_likes').select('post_id').eq('post_id',id).eq('user_id',user.id).maybeSingle();if(liked)await db.from('post_likes').delete().eq('post_id',id).eq('user_id',user.id);else await db.from('post_likes').insert({post_id:id,user_id:user.id});loadFeed()})}}
 async function account(){let setup=new URLSearchParams(location.search).has('setup');shell(`<div class="center"><h1>Môj účet</h1><img id="avatar" class="avatar" src="${esc(profile?.avatar_url||'')}" onerror="this.style.opacity=.2"><h2>${esc(profile?.first_name||'')}</h2>${profile?.is_vip?'<span class="pill active">✦ VIP</span>':''}</div>${setup?'<div class="card"><h2>Dokonči profil</h2><label class="label">Krstné meno</label><input id="first" class="field" placeholder="Krstné meno"><label class="label">Profilová fotka</label><input id="photo" class="field" type="file" accept="image/*"><button id="saveprofile" class="btn">Uložiť profil</button></div>':''}<div class="grid"><a class="card" href="notes.html"><h2>▤ Poznámky</h2><p class="muted">Tvoje študijné zápisky</p></a><a class="card" href="calendar.html"><h2>▦ Kalendár</h2><p class="muted">Plán učenia a termíny</p></a><a class="card" href="stats.html"><h2>↗ Štatistiky</h2><p class="muted">Prehľad učenia</p></a></div><div class="card"><h2>Najlepší študenti mesiaca</h2><div id="monthly" class="muted">Načítavam…</div></div><div class="card"><h2>Najlepší študenti roka</h2><div id="yearly" class="muted">Načítavam…</div></div>${profile?.is_vip?'':'<p class="small muted">Bezplatný účet: limit 20 študijných záznamov mesačne. VIP účet má neobmedzené zaznamenávanie učenia.</p>'}${profile?.is_vip||false?'':'<a class="small" href="admin.html">Administrácia</a>'}`, 'account');if(setup){$('#first').value=profile?.first_name||'';$('#saveprofile').onclick=async()=>{let first=$('#first').value.trim(),file=$('#photo').files[0];if(!first)return msg('Zadaj krstné meno.',true);let avatar_url=profile?.avatar_url;if(file){let path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g,'_')}`;let up=await db.storage.from('avatars').upload(path,file,{upsert:true});if(up.error)return msg(up.error.message,true);avatar_url=db.storage.from('avatars').getPublicUrl(path).data.publicUrl}let {error}=await db.from('profiles').upsert({id:user.id,first_name:first,avatar_url,is_vip:profile?.is_vip||false});if(error)return msg(error.message,true);await loadProfile();location.href='account.html'}};await leaderboard('monthly');await leaderboard('yearly');async function leaderboard(id){let start=new Date();if(id==='monthly')start.setDate(1);else start=new Date(start.getFullYear(),0,1);let {data}=await db.from('learning_sessions').select('user_id,minutes').gte('learned_on',start.toISOString().slice(0,10));let totals={};(data||[]).forEach(x=>totals[x.user_id]=(totals[x.user_id]||0)+x.minutes);let sorted=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,5);let ids=sorted.map(x=>x[0]);let names={};if(ids.length){let {data:ps}=await db.from('profiles').select('id,first_name').in('id',ids);(ps||[]).forEach(p=>names[p.id]=p.first_name)}$('#'+id).innerHTML=sorted.length?sorted.map(([uid,m],i)=>`${i+1}. ${esc(names[uid]||'Študent')} — ${Math.round(m/60*10)/10} h`).join('<br>'):'Zatiaľ bez údajov.'}}
