@@ -849,3 +849,273 @@ body:has(.auth) {
         font-size: 22px;
     }
 }
+
+/* =================================
+   WAYGO — PROFILE DESIGN
+================================= */
+
+.profile-page {
+    padding-bottom: 20px;
+}
+
+.profile-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.profile-settings {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #251b35;
+    border: 1px solid var(--line);
+    color: #d5b5ff;
+    font-size: 21px;
+}
+
+.profile-hero {
+    text-align: center;
+    padding: 30px 20px;
+    background:
+        radial-gradient(ellipse at top, #7141a530, transparent 65%),
+        linear-gradient(145deg, #21172f, #130f1d);
+}
+
+.profile-avatar-wrap {
+    position: relative;
+    width: 94px;
+    height: 94px;
+    margin: 0 auto 17px;
+    border-radius: 50%;
+    background: #38244d;
+    display: grid;
+    place-items: center;
+    border: 2px solid #b47aff;
+    box-shadow: 0 0 25px #a875ff35;
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.avatar-status {
+    position: absolute;
+    right: 2px;
+    bottom: 4px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--good);
+    border: 3px solid #21172f;
+}
+
+.profile-hero h1 {
+    font-size: 27px;
+    margin-bottom: 5px;
+}
+
+.vip-badge,
+.free-badge {
+    display: inline-block;
+    padding: 7px 13px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-top: 8px;
+}
+
+.vip-badge {
+    background: #69408b35;
+    color: #d8b5ff;
+    border: 1px solid #a875ff70;
+}
+
+.free-badge {
+    background: #292033;
+    color: #b9a9c9;
+    border: 1px solid #493653;
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 27px 0 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+}
+
+.profile-stats div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-stats strong {
+    color: #d6b4ff;
+    font-size: 23px;
+    font-weight: 900;
+}
+
+.profile-stats span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.profile-edit {
+    display: inline-block;
+}
+
+.progress-card {
+    background:
+        linear-gradient(130deg, #352047, #191326);
+    border-color: #64447e;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.section-heading h2 {
+    margin-bottom: 5px;
+}
+
+.progress-icon {
+    color: #d3aaff;
+    font-size: 26px;
+}
+
+.progress-number {
+    font-size: 36px;
+    font-weight: 900;
+    color: #d7b4ff;
+    margin: 15px 0 5px;
+}
+
+.progress-number span {
+    font-size: 15px;
+    color: var(--muted);
+}
+
+.profile-section {
+    margin: 28px 0;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+    margin-top: 15px;
+}
+
+.profile-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-height: 140px;
+    padding: 18px;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #21182e, #15101f);
+    border: 1px solid var(--line);
+    transition: .25s ease;
+}
+
+.profile-tile:hover {
+    transform: translateY(-3px);
+    border-color: #9b69d1;
+    box-shadow: 0 8px 25px #a875ff18;
+}
+
+.profile-tile strong {
+    color: var(--text);
+    font-size: 15px;
+}
+
+.tile-icon {
+    font-size: 27px;
+    font-weight: 800;
+}
+
+.tile-icon.purple {
+    color: #c69bff;
+}
+
+.tile-icon.blue {
+    color: #65cfff;
+}
+
+.tile-icon.pink {
+    color: #f47cdb;
+}
+
+.leaderboard-card h2 {
+    margin-bottom: 20px;
+}
+
+.leaderboard-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.leaderboard-row:last-child {
+    border-bottom: 0;
+}
+
+.leaderboard-row span:first-child {
+    color: #c69bff;
+    font-weight: 800;
+}
+
+.leaderboard-row strong {
+    flex: 1;
+}
+
+.leaderboard-row span:last-child {
+    color: #c69bff;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.account-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 13px;
+}
+
+.profile-setup {
+    border-color: #8055a9;
+}
+
+@media(max-width: 600px) {
+
+    .profile-hero {
+        padding: 25px 15px;
+    }
+
+    .profile-stats strong {
+        font-size: 20px;
+    }
+
+    .profile-tile {
+        min-height: 130px;
+        padding: 15px;
+    }
+
+    .progress-number {
+        font-size: 32px;
+    }
+}
