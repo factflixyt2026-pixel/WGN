@@ -388,8 +388,336 @@ async function home() {
 
     renderFeed();
 }
-async function account(){let setup=new URLSearchParams(location.search).has('setup');shell(`<div class="center"><h1>Môj účet</h1><img id="avatar" class="avatar" src="${esc(profile?.avatar_url||'')}" onerror="this.style.opacity=.2"><h2>${esc(profile?.first_name||'')}</h2>${profile?.is_vip?'<span class="pill active">✦ VIP</span>':''}</div>${setup?'<div class="card"><h2>Dokonči profil</h2><label class="label">Krstné meno</label><input id="first" class="field" placeholder="Krstné meno"><label class="label">Profilová fotka</label><input id="photo" class="field" type="file" accept="image/*"><button id="saveprofile" class="btn">Uložiť profil</button></div>':''}<div class="grid"><a class="card" href="notes.html"><h2>▤ Poznámky</h2><p class="muted">Tvoje študijné zápisky</p></a><a class="card" href="calendar.html"><h2>▦ Kalendár</h2><p class="muted">Plán učenia a termíny</p></a><a class="card" href="stats.html"><h2>↗ Štatistiky</h2><p class="muted">Prehľad učenia</p></a></div><div class="card"><h2>Najlepší študenti mesiaca</h2><div id="monthly" class="muted">Načítavam…</div></div><div class="card"><h2>Najlepší študenti roka</h2><div id="yearly" class="muted">Načítavam…</div></div>${profile?.is_vip?'':'<p class="small muted">Bezplatný účet: limit 20 študijných záznamov mesačne. VIP účet má neobmedzené zaznamenávanie učenia.</p>'}${profile?.is_vip||false?'':'<a class="small" href="admin.html">Administrácia</a>'}`, 'account');if(setup){$('#first').value=profile?.first_name||'';$('#saveprofile').onclick=async()=>{let first=$('#first').value.trim(),file=$('#photo').files[0];if(!first)return msg('Zadaj krstné meno.',true);let avatar_url=profile?.avatar_url;if(file){let path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g,'_')}`;let up=await db.storage.from('avatars').upload(path,file,{upsert:true});if(up.error)return msg(up.error.message,true);avatar_url=db.storage.from('avatars').getPublicUrl(path).data.publicUrl}let {error}=await db.from('profiles').upsert({id:user.id,first_name:first,avatar_url,is_vip:profile?.is_vip||false});if(error)return msg(error.message,true);await loadProfile();location.href='account.html'}};await leaderboard('monthly');await leaderboard('yearly');async function leaderboard(id){let start=new Date();if(id==='monthly')start.setDate(1);else start=new Date(start.getFullYear(),0,1);let {data}=await db.from('learning_sessions').select('user_id,minutes').gte('learned_on',start.toISOString().slice(0,10));let totals={};(data||[]).forEach(x=>totals[x.user_id]=(totals[x.user_id]||0)+x.minutes);let sorted=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,5);let ids=sorted.map(x=>x[0]);let names={};if(ids.length){let {data:ps}=await db.from('profiles').select('id,first_name').in('id',ids);(ps||[]).forEach(p=>names[p.id]=p.first_name)}$('#'+id).innerHTML=sorted.length?sorted.map(([uid,m],i)=>`${i+1}. ${esc(names[uid]||'Študent')} — ${Math.round(m/60*10)/10} h`).join('<br>'):'Zatiaľ bez údajov.'}}
-async function notes(){shell(`<h1>Poznámky</h1><p class="muted">Vytváraj a upravuj vlastné poznámky.</p><div class="card"><input id="ntitle" class="field" placeholder="Názov poznámky"><textarea id="nbody" class="field" rows="5" placeholder="Napíš si poznámku…"></textarea><button id="addnote" class="btn">Uložiť poznámku</button></div><div id="noteslist"></div>`,'account');$('#addnote').onclick=async()=>{let title=$('#ntitle').value.trim(),body=$('#nbody').value.trim();if(!title)return msg('Zadaj názov poznámky.',true);let {error}=await db.from('notes').insert({user_id:user.id,title,body});if(error)return msg(error.message,true);$('#ntitle').value='';$('#nbody').value='';load()};load();async function load(){let {data,error}=await db.from('notes').select('*').eq('user_id',user.id).order('updated_at',{ascending:false});$('#noteslist').innerHTML=error?'Nepodarilo sa načítať poznámky.':(data||[]).map(n=>`<div class="card"><input class="field title" value="${esc(n.title)}"><textarea class="field body" rows="4">${esc(n.body)}</textarea><div class="row"><button class="btn save" data-id="${n.id}">Uložiť zmeny</button><button class="btn danger del" data-id="${n.id}">Vymazať</button></div></div>`).join('')||'<p class="muted">Zatiaľ nemáš poznámky.</p>';$('#noteslist').querySelectorAll('.save').forEach(b=>b.onclick=async()=>{let c=b.closest('.card');let {error}=await db.from('notes').update({title:c.querySelector('.title').value,body:c.querySelector('.body').value,updated_at:new Date().toISOString()}).eq('id',b.dataset.id);msg(error?.message||'Poznámka uložená.',!!error)});$('#noteslist').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{if(confirm('Naozaj vymazať poznámku?')){await db.from('notes').delete().eq('id',b.dataset.id);load()}})}}
+
+async function account() {
+
+    const setup = new URLSearchParams(location.search).has('setup');
+
+    // Načítanie študijných štatistík
+    const { data: sessions } = await db
+        .from('learning_sessions')
+        .select('minutes, learned_on')
+        .eq('user_id', user.id)
+        .order('learned_on', { ascending: false })
+        .limit(1000);
+
+    const rows = sessions || [];
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+        .toISOString().slice(0, 10);
+
+    const monthRows = rows.filter(x => x.learned_on >= monthStart);
+    const totalMinutes = rows.reduce((sum, x) => sum + x.minutes, 0);
+    const monthMinutes = monthRows.reduce((sum, x) => sum + x.minutes, 0);
+
+    const activeDays = new Set(rows.map(x => x.learned_on)).size;
+
+    const { count: noteCount } = await db
+        .from('notes')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+    const hours = (totalMinutes / 60).toFixed(1);
+    const monthHours = (monthMinutes / 60).toFixed(1);
+
+    const avatar = profile?.avatar_url || '';
+
+    shell(`
+        <section class="profile-page">
+
+            <header class="profile-heading">
+                <div>
+                    <div class="brand">WG <span>WayGo</span></div>
+                    <p class="muted small">Tvoj osobný priestor</p>
+                </div>
+
+                <a href="account.html?setup=1"
+                   class="profile-settings"
+                   aria-label="Nastavenia profilu">
+                    ⚙
+                </a>
+            </header>
+
+            <section class="profile-hero card">
+
+                <div class="profile-avatar-wrap">
+                    <img
+                        class="avatar profile-avatar"
+                        src="${esc(avatar)}"
+                        onerror="this.style.display='none'"
+                        alt="Profilová fotografia">
+                    <span class="avatar-status"></span>
+                </div>
+
+                <h1>${esc(profile?.first_name || 'Študent')}</h1>
+
+                <p class="muted small">Člen/ka WayGo</p>
+
+                ${profile?.is_vip
+                    ? '<span class="vip-badge">✦ WAYGO VIP</span>'
+                    : '<span class="free-badge">WAYGO FREE</span>'
+                }
+
+                <div class="profile-stats">
+
+                    <div>
+                        <strong>${rows.length}</strong>
+                        <span>Záznamy</span>
+                    </div>
+
+                    <div>
+                        <strong>${hours} h</strong>
+                        <span>Celkové učenie</span>
+                    </div>
+
+                    <div>
+                        <strong>${activeDays}</strong>
+                        <span>Dní aktivity</span>
+                    </div>
+
+                </div>
+
+                <a href="account.html?setup=1"
+                   class="btn secondary profile-edit">
+                    Upraviť profil
+                </a>
+
+            </section>
+
+            ${setup ? `
+                <section class="card profile-setup">
+                    <h2>Dokonči svoj profil</h2>
+
+                    <label class="label">Krstné meno</label>
+                    <input id="first" class="field"
+                           placeholder="Tvoje meno">
+
+                    <label class="label">Profilová fotografia</label>
+                    <input id="photo" class="field"
+                           type="file" accept="image/*">
+
+                    <button id="saveprofile" class="btn">
+                        Uložiť profil
+                    </button>
+                </section>
+            ` : ''}
+
+            <section class="card progress-card">
+
+                <div class="section-heading">
+                    <div>
+                        <h2>Študijný progres</h2>
+                        <p class="muted small">Tento mesiac</p>
+                    </div>
+                    <span class="progress-icon">✦</span>
+                </div>
+
+                <div class="progress-number">
+                    ${monthHours} <span>hodín</span>
+                </div>
+
+                <p class="muted small">
+                    Tvoj zaznamenaný čas učenia v tomto mesiaci.
+                </p>
+
+            </section>
+
+            <section class="profile-section">
+
+                <div class="section-heading">
+                    <h2>Tvoj priestor</h2>
+                </div>
+
+                <div class="profile-grid">
+
+                    <a href="notes.html" class="profile-tile">
+                        <span class="tile-icon purple">▤</span>
+                        <strong>Poznámky</strong>
+                        <span class="muted small">
+                            ${noteCount ?? 0} poznámok
+                        </span>
+                    </a>
+
+                    <a href="calendar.html" class="profile-tile">
+                        <span class="tile-icon blue">▦</span>
+                        <strong>Kalendár</strong>
+                        <span class="muted small">
+                            Tvoje termíny
+                        </span>
+                    </a>
+
+                    <a href="stats.html" class="profile-tile">
+                        <span class="tile-icon pink">↗</span>
+                        <strong>Štatistiky</strong>
+                        <span class="muted small">
+                            Tvoj študijný progres
+                        </span>
+                    </a>
+
+                    <a href="account.html?setup=1" class="profile-tile">
+                        <span class="tile-icon blue">⚙</span>
+                        <strong>Nastavenia</strong>
+                        <span class="muted small">
+                            Osobné údaje
+                        </span>
+                    </a>
+
+                </div>
+
+            </section>
+
+            <section class="card leaderboard-card">
+                <h2>🏆 Najlepší študenti mesiaca</h2>
+                <div id="monthly" class="muted">
+                    Načítavam...
+                </div>
+            </section>
+
+            <section class="card leaderboard-card">
+                <h2>🏆 Najlepší študenti roka</h2>
+                <div id="yearly" class="muted">
+                    Načítavam...
+                </div>
+            </section>
+
+            <section class="card account-bottom">
+
+                <h2>WayGo členstvo</h2>
+
+                ${profile?.is_vip
+                    ? '<span class="vip-badge">✦ WAYGO VIP</span><p class="muted small">Máš neobmedzené zaznamenávanie učenia.</p>'
+                    : '<span class="free-badge">WAYGO FREE</span><p class="muted small">Bezplatný účet má limit 20 študijných záznamov mesačne.</p>'
+                }
+
+                ${profile?.is_admin
+                    ? '<a href="admin.html" class="btn secondary">Administrácia</a>'
+                    : ''
+                }
+
+                <button class="btn danger" id="logout-account">
+                    Odhlásiť sa
+                </button>
+
+            </section>
+
+        </section>
+    `, 'account');
+
+    // Dokončenie profilu
+    if (setup) {
+
+        $('#first').value = profile?.first_name || '';
+
+        $('#saveprofile').onclick = async () => {
+
+            const first = $('#first').value.trim();
+            const file = $('#photo').files[0];
+
+            if (!first) {
+                return msg('Zadaj svoje krstné meno.', true);
+            }
+
+            let avatar_url = profile?.avatar_url || null;
+
+            if (file) {
+
+                const path =
+                    `${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+                const upload = await db.storage
+                    .from('avatars')
+                    .upload(path, file, { upsert: true });
+
+                if (upload.error) {
+                    return msg(upload.error.message, true);
+                }
+
+                avatar_url = db.storage
+                    .from('avatars')
+                    .getPublicUrl(path).data.publicUrl;
+            }
+
+            const { error } = await db
+                .from('profiles')
+                .upsert({
+                    id: user.id,
+                    first_name: first,
+                    avatar_url,
+                    is_vip: profile?.is_vip || false
+                });
+
+            if (error) {
+                return msg(error.message, true);
+            }
+
+            await loadProfile();
+
+            location.href = 'account.html';
+        };
+    }
+
+    // Odhlásenie
+    $('#logout-account').onclick = async () => {
+        await db.auth.signOut();
+        location.href = 'login.html';
+    };
+
+    // Rebríčky
+    await leaderboard('monthly');
+    await leaderboard('yearly');
+
+    async function leaderboard(id) {
+
+        let start = new Date();
+
+        if (id === 'monthly') {
+            start.setDate(1);
+        } else {
+            start = new Date(start.getFullYear(), 0, 1);
+        }
+
+        const { data } = await db
+            .from('learning_sessions')
+            .select('user_id, minutes')
+            .gte('learned_on', start.toISOString().slice(0, 10));
+
+        const totals = {};
+
+        (data || []).forEach(x => {
+            totals[x.user_id] =
+                (totals[x.user_id] || 0) + x.minutes;
+        });
+
+        const sorted = Object.entries(totals)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
+        const ids = sorted.map(x => x[0]);
+        const names = {};
+
+        if (ids.length) {
+
+            const { data: profiles } = await db
+                .from('profiles')
+                .select('id, first_name')
+                .in('id', ids);
+
+            (profiles || []).forEach(p => {
+                names[p.id] = p.first_name;
+            });
+        }
+
+        $('#' + id).innerHTML = sorted.length
+            ? sorted.map(([uid, minutes], i) => `
+                <div class="leaderboard-row">
+                    <span>${i + 1}.</span>
+                    <strong>${esc(names[uid] || 'Študent')}</strong>
+                    <span>${(minutes / 60).toFixed(1)} h</span>
+                </div>
+            `).join('')
+            : 'Zatiaľ bez údajov.';
+    }
+}
 async function calendar(){shell(`<h1>Kalendár</h1><p class="muted">Plánuj testy, učenie a dôležité termíny.</p><div class="card"><input id="etitle" class="field" placeholder="Názov udalosti"><textarea id="edetails" class="field" rows="2" placeholder="Podrobnosti"></textarea><label class="label">Dátum a čas</label><input id="edate" class="field" type="datetime-local"><button id="addevent" class="btn">Pridať do kalendára</button></div><div id="events"></div>`,'account');$('#edate').value=new Date(Date.now()+3600000).toISOString().slice(0,16);$('#addevent').onclick=async()=>{let title=$('#etitle').value.trim(),starts_at=new Date($('#edate').value).toISOString();if(!title)return msg('Zadaj názov udalosti.',true);let {error}=await db.from('calendar_events').insert({user_id:user.id,title,details:$('#edetails').value,starts_at});if(error)return msg(error.message,true);$('#etitle').value='';load()};load();async function load(){let {data,error}=await db.from('calendar_events').select('*').eq('user_id',user.id).order('starts_at');$('#events').innerHTML=error?'Nepodarilo sa načítať udalosti.':(data||[]).map(e=>`<div class="card row" style="justify-content:space-between"><div><h3>${esc(e.title)}</h3><p class="muted small">${new Date(e.starts_at).toLocaleString('sk-SK')} · ${esc(e.details)}</p></div><button class="btn danger del" data-id="${e.id}">Zmazať</button></div>`).join('')||'<p class="muted">Kalendár je zatiaľ prázdny.</p>';$('#events').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{await db.from('calendar_events').delete().eq('id',b.dataset.id);load()})}}
 async function stats(){shell(`<h1>Štatistiky učenia</h1><p class="muted">Zaznamenaj si čas učenia a sleduj svoj progres.</p><div class="card"><input id="subject" class="field" placeholder="Predmet"><label class="label">Počet minút</label><input id="minutes" class="field" type="number" min="1" max="1440" value="30"><button id="log" class="btn">Zaznamenať učenie</button><p class="small muted">${profile?.is_vip?'VIP: bez mesačného limitu.':'Free: najviac 20 záznamov za mesiac.'}</p></div><div class="grid"><div class="card"><div class="muted">Tento mesiac</div><div class="stat" id="monthtotal">—</div><div class="small muted">hodín učenia</div></div><div class="card"><div class="muted">Tento rok</div><div class="stat" id="yeartotal">—</div><div class="small muted">hodín učenia</div></div></div><div class="card"><h2>Posledné záznamy</h2><div id="history"></div></div>`,'account');$('#log').onclick=async()=>{let subject=$('#subject').value.trim(),minutes=Number($('#minutes').value);if(!subject||!Number.isInteger(minutes)||minutes<1||minutes>1440)return msg('Vyplň predmet a platný čas (1–1440 minút).',true);let {error}=await db.from('learning_sessions').insert({user_id:user.id,subject,minutes});if(error)return msg(error.message.includes('row-level security')?'Dosiahol/a si mesačný limit bezplatného účtu. VIP má neobmedzený limit.':error.message,true);$('#subject').value='';load()};load();async function load(){let now=new Date(),month=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10),year=new Date(now.getFullYear(),0,1).toISOString().slice(0,10);let {data,error}=await db.from('learning_sessions').select('*').eq('user_id',user.id).order('learned_on',{ascending:false}).limit(100);if(error)return msg(error.message,true);let rows=data||[],sum=a=>a.reduce((n,x)=>n+x.minutes,0);$('#monthtotal').textContent=(sum(rows.filter(x=>x.learned_on>=month))/60).toFixed(1);$('#yeartotal').textContent=(sum(rows.filter(x=>x.learned_on>=year))/60).toFixed(1);$('#history').innerHTML=rows.slice(0,30).map(x=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:9px 0"><span>${esc(x.subject)} <span class="muted small">${x.learned_on}</span></span><b>${x.minutes} min</b></div>`).join('')||'<span class="muted">Zatiaľ nemáš žiadne záznamy.</span>'}}
 async function social(){shell(`<h1>Skupiny</h1><p class="muted">Nájdi spolužiakov a učte sa spoločne.</p><div class="card"><h2>Vytvoriť skupinu</h2><input id="gname" class="field" placeholder="Názov skupiny"><textarea id="gdesc" class="field" placeholder="O čom skupina je?"></textarea><button id="createg" class="btn">Vytvoriť</button></div><div id="groups"></div><div class="card"><h2>Nový príspevok</h2><input id="ptitle" class="field" placeholder="Názov / predmet"><select id="pcat" class="field"><option value="mix">Mix</option><option value="lf">LF UK</option><option value="maturita">Maturita</option></select><textarea id="pbody" class="field" rows="4" placeholder="Čo chceš zdieľať?"></textarea><button id="createp" class="btn">Zverejniť</button></div><h2>Diskusia</h2><div id="posts"></div>`,'social');$('#createg').onclick=async()=>{let name=$('#gname').value.trim();if(!name)return msg('Zadaj názov skupiny.',true);let {data,error}=await db.from('study_groups').insert({owner_id:user.id,name,description:$('#gdesc').value}).select().single();if(error)return msg(error.message,true);await db.from('group_members').insert({group_id:data.id,user_id:user.id,role:'owner'});loadGroups()};$('#createp').onclick=async()=>{let title=$('#ptitle').value.trim(),body=$('#pbody').value.trim();if(!title||!body)return msg('Vyplň názov aj text príspevku.',true);let {error}=await db.from('posts').insert({author_id:user.id,title,body,category:$('#pcat').value});if(error)return msg(error.message,true);$('#ptitle').value='';$('#pbody').value='';loadPosts()};loadGroups();loadPosts();async function loadGroups(){let {data}=await db.from('study_groups').select('*,group_members(count)').order('created_at',{ascending:false});$('#groups').innerHTML=(data||[]).map(g=>`<div class="card row" style="justify-content:space-between"><div><h3>${esc(g.name)}</h3><p class="small muted">${esc(g.description)} · ${g.group_members?.[0]?.count||0} členov</p></div><button class="btn secondary join" data-id="${g.id}">Členstvo</button></div>`).join('')||'<p class="muted">Zatiaľ neexistujú skupiny.</p>';$('#groups').querySelectorAll('.join').forEach(b=>b.onclick=async()=>{let id=b.dataset.id,{data:m}=await db.from('group_members').select('*').eq('group_id',id).eq('user_id',user.id).maybeSingle();if(m)await db.from('group_members').delete().eq('group_id',id).eq('user_id',user.id);else{let {error}=await db.from('group_members').insert({group_id:id,user_id:user.id});if(error)return msg(error.message,true)}loadGroups()})}async function loadPosts(){let {data}=await db.from('posts').select('*,profiles(first_name),comments(*) ,post_likes(count)').order('created_at',{ascending:false}).limit(25);$('#posts').innerHTML=(data||[]).map(p=>`<article class="card"><div class="small muted">${esc(p.profiles?.first_name||'Študent')} · ${new Date(p.created_at).toLocaleString('sk-SK')}</div><h3>${esc(p.title)}</h3><p>${esc(p.body)}</p><div class="row"><button class="pill like" data-id="${p.id}">♡ Páči sa mi (${p.post_likes?.[0]?.count||0})</button><button class="pill showcomments" data-id="${p.id}">Komentáre (${p.comments?.length||0})</button>${p.author_id===user.id||profile?.is_admin?`<button class="pill deletepost" data-id="${p.id}">Zmazať</button>`:''}</div><div class="comments hidden" id="c-${p.id}">${(p.comments||[]).map(c=>`<p class="small">${esc(c.body)}</p>`).join('')}<input class="field commentinput" placeholder="Napíš komentár"><button class="btn secondary addcomment" data-id="${p.id}">Odoslať</button></div></article>`).join('')||'<p class="muted">Zatiaľ bez príspevkov.</p>';$('#posts').querySelectorAll('.like').forEach(b=>b.onclick=async()=>{let {data:l}=await db.from('post_likes').select('*').eq('post_id',b.dataset.id).eq('user_id',user.id).maybeSingle();if(l)await db.from('post_likes').delete().eq('post_id',b.dataset.id).eq('user_id',user.id);else await db.from('post_likes').insert({post_id:b.dataset.id,user_id:user.id});loadPosts()});$('#posts').querySelectorAll('.showcomments').forEach(b=>b.onclick=()=>$('#c-'+b.dataset.id).classList.toggle('hidden'));$('#posts').querySelectorAll('.addcomment').forEach(b=>b.onclick=async()=>{let input=b.parentElement.querySelector('input'),body=input.value.trim();if(!body)return;let {error}=await db.from('comments').insert({post_id:b.dataset.id,author_id:user.id,body});if(error)return msg(error.message,true);loadPosts()});$('#posts').querySelectorAll('.deletepost').forEach(b=>b.onclick=async()=>{if(confirm('Zmazať príspevok?')){await db.from('posts').delete().eq('id',b.dataset.id);loadPosts()}})}}
