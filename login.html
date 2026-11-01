@@ -1,1 +1,359 @@
-<!doctype html><html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prihlásenie · WayGo</title><link rel="stylesheet" href="styles.css"></head><body><div id="app"></div><div id="message" class="hidden"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script></body></html>
+
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080713">
+    <title>Prihlásenie · WayGo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+            radial-gradient(ellipse at 50% 20%, #6527a744, transparent 45%),
+            radial-gradient(circle at 90% 90%, #007bff22, transparent 35%),
+            #080713;
+        color: white;
+        font-family: 'Inter', sans-serif;
+    }
+
+    #app {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 25px;
+    }
+
+    .auth {
+        width: 100%;
+        max-width: 410px;
+        position: relative;
+        padding: 38px 30px;
+        border: 1px solid #ffffff18;
+        border-radius: 28px;
+        background: #151123c9;
+        backdrop-filter: blur(25px);
+        box-shadow: 0 0 70px #8b35ff20;
+        animation: enter .7s ease;
+    }
+
+    @keyframes enter {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .brand {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .brand-logo {
+        width: 65px;
+        height: 65px;
+        margin: auto;
+        display: grid;
+        place-items: center;
+        border-radius: 20px;
+        background: linear-gradient(135deg,#a855f7,#6638ff,#00c8ff);
+        box-shadow: 0 0 35px #994cff77;
+        font-size: 25px;
+        font-weight: 900;
+    }
+
+    .brand h1 {
+        margin: 17px 0 7px;
+        font-size: 30px;
+        letter-spacing: 2px;
+    }
+
+    .brand p {
+        color: #a99bbf;
+        font-size: 13px;
+    }
+
+    .tabs {
+        display: flex;
+        background: #ffffff0b;
+        border-radius: 14px;
+        padding: 5px;
+        margin-bottom: 25px;
+    }
+
+    .tabs button {
+        flex: 1;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        background: transparent;
+        color: #9b91ad;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .tabs button.active {
+        color: white;
+        background: linear-gradient(100deg,#863cff,#6339d9);
+        box-shadow: 0 0 20px #863cff44;
+    }
+
+    .field {
+        margin-bottom: 16px;
+    }
+
+    .field label {
+        display: block;
+        font-size: 12px;
+        color: #c5b8d9;
+        margin-bottom: 9px;
+    }
+
+    .field input {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ffffff20;
+        border-radius: 12px;
+        background: #ffffff09;
+        color: white;
+        outline: none;
+        font-size: 14px;
+        transition: .25s;
+    }
+
+    .field input:focus {
+        border-color: #a855f7;
+        box-shadow: 0 0 18px #a855f733;
+    }
+
+    .main-btn {
+        width: 100%;
+        padding: 16px;
+        margin-top: 7px;
+        border: none;
+        border-radius: 13px;
+        background: linear-gradient(100deg,#a855f7,#6738ff,#248cff);
+        color: white;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 0 25px #853cff44;
+        transition: .25s;
+    }
+
+    .main-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 35px #853cff88;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 25px 0;
+        color: #82778f;
+        font-size: 11px;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: "";
+        height: 1px;
+        background: #ffffff18;
+        flex: 1;
+    }
+
+    .socials {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+    }
+
+    .social {
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        border: 1px solid #ffffff25;
+        background: #ffffff0b;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        transition: .3s;
+    }
+
+    .social:hover {
+        transform: translateY(-5px) scale(1.08);
+        border-color: #b66bff;
+        box-shadow: 0 0 25px #a855f766;
+    }
+
+    .social img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+    }
+
+    .social.apple img {
+        filter: invert(1);
+    }
+
+    .footer {
+        text-align: center;
+        color: #80768e;
+        font-size: 11px;
+        margin-top: 25px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* Verification modal */
+
+    .modal {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        background: #05030bd9;
+        backdrop-filter: blur(12px);
+    }
+
+    .modal-box {
+        width: 100%;
+        max-width: 350px;
+        padding: 35px 25px;
+        border-radius: 25px;
+        border: 1px solid #a855f755;
+        background: #171126;
+        text-align: center;
+        box-shadow: 0 0 55px #8b35ff33;
+        animation: enter .4s ease;
+    }
+
+    .mail-icon {
+        font-size: 45px;
+        margin-bottom: 15px;
+    }
+
+    .modal-box h2 {
+        font-size: 22px;
+    }
+
+    .modal-box p {
+        color: #aaa0bb;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .modal-box button {
+        width: 100%;
+        margin-top: 18px;
+        padding: 14px;
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 700;
+        background: linear-gradient(100deg,#a855f7,#6738ff);
+        cursor: pointer;
+    }
+
+    .error {
+        color: #ff819d;
+        font-size: 12px;
+        margin-top: 12px;
+        text-align: center;
+    }
+
+    @media(max-width: 480px) {
+        .auth { padding: 30px 22px; }
+    }
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+    <div class="auth">
+
+        <div class="brand">
+            <div class="brand-logo">WG</div>
+            <h1>WayGo</h1>
+            <p>Tvoj svet. Tvoja cesta.</p>
+        </div>
+
+        <div class="tabs">
+            <button id="loginTab" class="active">Prihlásenie</button>
+            <button id="signupTab">Registrácia</button>
+        </div>
+
+        <form id="authForm">
+            <div class="field hidden" id="nameField">
+                <label>Meno</label>
+                <input type="text" id="name" placeholder="Tvoje meno" autocomplete="name">
+            </div>
+
+            <div class="field">
+                <label>E-mail</label>
+                <input type="email" id="email" placeholder="meno@email.com" required autocomplete="email">
+            </div>
+
+            <div class="field">
+                <label>Heslo</label>
+                <input type="password" id="password" placeholder="Minimálne 6 znakov" required minlength="6" autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="main-btn" id="submitBtn">
+                Prihlásiť sa →
+            </button>
+
+            <div class="error" id="error"></div>
+        </form>
+
+        <div class="divider">ALEBO POKRAČUJ POMOCOU</div>
+
+        <div class="socials">
+            <button class="social" id="googleBtn" aria-label="Pokračovať cez Google">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            </button>
+
+            <button class="social apple" id="appleBtn" aria-label="Pokračovať cez Apple">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple">
+            </button>
+        </div>
+
+        <div class="footer">
+            Pokračovaním súhlasíš s podmienkami WayGo.
+        </div>
+
+    </div>
+</div>
+
+<div id="verificationModal" class="modal hidden">
+    <div class="modal-box">
+        <div class="mail-icon">✉️</div>
+        <h2>Skontroluj si mail!</h2>
+        <p>
+            Poslali sme ti overovací odkaz na tvoju e-mailovú adresu.
+            Otvor si e-mail a potvrď svoj účet.
+        </p>
+        <button id="closeModal">Rozumiem</button>
+    </div>
+</div>
+
+<div id="message" class="hidden"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
