@@ -1,1 +1,357 @@
-<!doctype html><html lang="sk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Účet · WayGo</title><link rel="stylesheet" href="styles.css"></head><body><div id="app"></div><div id="message" class="hidden"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="sk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#080b18">
+
+    <title>Účet · WayGo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #080b18;
+            --surface: rgba(19, 25, 48, 0.75);
+            --surface-hover: rgba(32, 42, 76, 0.9);
+
+            --primary: #6575ff;
+            --secondary: #a855f7;
+            --cyan: #22d3ee;
+
+            --text: #f5f7ff;
+            --muted: #929bb8;
+            --border: rgba(255,255,255,0.09);
+
+            --radius: 20px;
+            --transition: .3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+
+            background:
+                radial-gradient(ellipse at 10% 10%, rgba(75,90,255,.15), transparent 45%),
+                radial-gradient(ellipse at 90% 30%, rgba(168,85,247,.13), transparent 45%),
+                radial-gradient(ellipse at 50% 100%, rgba(34,211,238,.09), transparent 45%),
+                var(--bg);
+
+            overflow-x: hidden;
+        }
+
+        /* FUTURISTIC BACKGROUND */
+
+        .background-effects {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            filter: blur(130px);
+            opacity: .2;
+            animation: float 12s ease-in-out infinite alternate;
+        }
+
+        .glow-blue {
+            background: #435cff;
+            top: -150px;
+            left: -100px;
+        }
+
+        .glow-purple {
+            background: #9b45ff;
+            right: -150px;
+            top: 25%;
+            animation-delay: -4s;
+        }
+
+        .glow-cyan {
+            background: #00c8ff;
+            bottom: -200px;
+            left: 35%;
+            animation-delay: -7s;
+        }
+
+        @keyframes float {
+            from {
+                transform: translate(0,0);
+            }
+            to {
+                transform: translate(70px,50px);
+            }
+        }
+
+        /* APP */
+
+        #app {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            min-height: 100vh;
+            animation: fadeIn .7s ease;
+        }
+
+        /* GLASS EFFECT */
+
+        .card,
+        .panel,
+        .modal,
+        .container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+
+            box-shadow: 0 15px 50px rgba(0,0,0,.2);
+
+            transition: var(--transition);
+        }
+
+        .card:hover,
+        .panel:hover {
+            background: var(--surface-hover);
+            border-color: rgba(101,117,255,.4);
+            transform: translateY(-4px);
+        }
+
+        /* TYPOGRAPHY */
+
+        h1, h2, h3 {
+            font-weight: 800;
+            letter-spacing: -.8px;
+        }
+
+        h1 {
+            font-size: clamp(2rem,5vw,3.5rem);
+
+            background: linear-gradient(
+                100deg,
+                #ffffff,
+                #9eafff,
+                #c084fc
+            );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        p {
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* BUTTONS */
+
+        button,
+        .btn {
+            border: none;
+            outline: none;
+            cursor: pointer;
+
+            color: white;
+            font-family: inherit;
+            font-weight: 700;
+
+            padding: 13px 24px;
+            border-radius: 12px;
+
+            background: linear-gradient(
+                110deg,
+                var(--primary),
+                var(--secondary)
+            );
+
+            box-shadow: 0 5px 25px rgba(101,117,255,.25);
+
+            transition: var(--transition);
+        }
+
+        button:hover,
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(101,117,255,.45);
+            filter: brightness(1.15);
+        }
+
+        button:active,
+        .btn:active {
+            transform: scale(.97);
+        }
+
+        /* INPUTS */
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 14px 16px;
+
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+
+            background: rgba(8,12,29,.8);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(101,117,255,.15);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #737d9d;
+        }
+
+        /* LINKS */
+
+        a {
+            color: var(--cyan);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: #a5f3fc;
+        }
+
+        /* MESSAGE */
+
+        #message {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+
+            padding: 16px 22px;
+            border-radius: 14px;
+
+            color: white;
+
+            background: rgba(25,34,65,.95);
+            border: 1px solid rgba(101,117,255,.4);
+
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 35px rgba(0,0,0,.35);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ANIMATIONS */
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* SCROLLBAR */
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #080b18;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(
+                var(--primary),
+                var(--secondary)
+            );
+            border-radius: 20px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 768px) {
+            .glow {
+                width: 250px;
+                height: 250px;
+                filter: blur(90px);
+            }
+
+            .card,
+            .panel,
+            .modal {
+                border-radius: 16px;
+            }
+
+            button,
+            .btn {
+                padding: 12px 18px;
+            }
+        }
+
+        /* ACCESSIBILITY */
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="background-effects">
+        <div class="glow glow-blue"></div>
+        <div class="glow glow-purple"></div>
+        <div class="glow glow-cyan"></div>
+    </div>
+
+    <div id="app"></div>
+
+    <div id="message" class="hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
