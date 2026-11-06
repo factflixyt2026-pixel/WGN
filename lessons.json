@@ -1,0 +1,453 @@
+[
+  {
+    "id": 1,
+    "title": "Biológia a živé sústavy",
+    "text": "Biológia skúma živé organizmy, ich stavbu, funkcie a vzťahy s prostredím. Základné metódy sú pozorovanie a pokus.",
+    "questionIds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "terms": [
+      "Biológia",
+      "Medzi samostatné biologické vedy patrí",
+      "Medicína patrí medzi vedy"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Chemické zloženie bunky",
+    "text": "Voda tvorí významnú časť bunky. Medzi dôležité organické látky patria bielkoviny, sacharidy, lipidy a nukleové kyseliny.",
+    "questionIds": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "terms": [
+      "Chemické zloženie bunky",
+      "Anorganické látky",
+      "Voda"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Sacharidy a bunkové povrchy",
+    "text": "Monosacharidy, disacharidy a polysacharidy majú energetické, zásobné aj stavebné funkcie. Bunkový povrch oddeľuje bunku od prostredia.",
+    "questionIds": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ],
+    "terms": [
+      "Ktoré polysacharidy majú zásobnú funkciu",
+      "Z disacharidov sa v bunkách vyskytuje",
+      "Zo sacharidov sa v bunke vyskytujú"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Bunková stena a membrány",
+    "text": "Bunková membrána je selektívne priepustná. Bunková stena zabezpečuje oporu a jej zloženie sa medzi skupinami organizmov líši.",
+    "questionIds": [
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40
+    ],
+    "terms": [
+      "Bunková stena",
+      "Plazmodezmy sú",
+      "Cytoplazmatická membrána"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Bunkové organely",
+    "text": "Eukaryotická bunka obsahuje membránové organely. Ich úlohy súvisia s tvorbou látok, transportom, získavaním energie a reguláciou.",
+    "questionIds": [
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50
+    ],
+    "terms": [
+      "Medzi organely eukaryotických buniek patria",
+      "Bunkové jadro",
+      "Jadro prokaryotických buniek"
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Mitochondrie a plastidy",
+    "text": "Mitochondrie sa podieľajú na bunkovom dýchaní. Chloroplasty rastlín umožňujú fotosyntézu.",
+    "questionIds": [
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60
+    ],
+    "terms": [
+      "Z koľkých biomembrán sa skladajú mitochondrie",
+      "Počet a veľkosť mitochondrií",
+      "Endoplazmatické retikulum"
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Lyzozómy a bunkové procesy",
+    "text": "Lyzozómy obsahujú enzýmy rozkladajúce látky. Bunky zároveň neustále obnovujú svoje štruktúry a spracúvajú informácie.",
+    "questionIds": [
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70
+    ],
+    "terms": [
+      "Lyzozómy",
+      "Čo vykonáva funkciu lyzozómov v živočíšnej bunke",
+      "Lyzozómy"
+    ]
+  },
+  {
+    "id": 8,
+    "title": "DNA a bunkové štruktúry",
+    "text": "DNA nesie genetickú informáciu. Pri replikácii sa vytvára jej kópia, aby sa informácia mohla odovzdať dcérskym bunkám.",
+    "questionIds": [
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80
+    ],
+    "terms": [
+      "K replikácii DNA v bunke dochádza v",
+      "Na základe štruktúry patria medzi základné typy buniek",
+      "Prokaryotické bunky"
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Tkanivá a pletivá",
+    "text": "Tkanivá tvoria súbory podobných buniek živočíchov; pletivá sú ich rastlinným náprotivkom. Špecializácia súvisí s funkciou.",
+    "questionIds": [
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90
+    ],
+    "terms": [
+      "Podľa funkcie rozdeľujeme tkanivá na",
+      "Epitel má funkciu",
+      "Spojivové tkanivá"
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Transport cez membránu",
+    "text": "Difúzia a osmóza sú príklady pasívnych dejov. Pri osmóze sa voda presúva cez polopriepustnú membránu.",
+    "questionIds": [
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100
+    ],
+    "terms": [
+      "Osmotická lýza bunky nastáva v prostredí",
+      "Aktívny transport",
+      "Aké formy endocytózy poznáte"
+    ]
+  },
+  {
+    "id": 11,
+    "title": "ATP a metabolizmus",
+    "text": "ATP je dôležitý prenášač energie v bunke. Metabolizmus zahŕňa tvorbu aj rozklad látok.",
+    "questionIds": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110
+    ],
+    "terms": [
+      "Čo obsahuje molekula ATP",
+      "Čo sú enzýmy",
+      "Pre enzýmy platí"
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Energetické procesy",
+    "text": "Bunkové dýchanie sprístupňuje energiu z organických látok. Fotosyntéza premieňa svetelnú energiu na chemickú.",
+    "questionIds": [
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120
+    ],
+    "terms": [
+      "Energia v bunke sa uvoľňuje",
+      "Enzymatická sústava oxidatívnej fosforylácie je lokalizovaná v",
+      "Jeden z dôležitých metabolických procesov v bunke, pri ktorom satvoria nové"
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Chromozómy a delenie",
+    "text": "Chromozómy obsahujú DNA a bielkoviny. Bunkové delenie umožňuje rast, obnovu a rozmnožovanie.",
+    "questionIds": [
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130
+    ],
+    "terms": [
+      "Chromozóm",
+      "Bunka pankreasu človeka má za normálnych okolností",
+      "Počet gonozómov v normálnej somatickej bunke muža aj ženy je"
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Bunkový cyklus",
+    "text": "Bunkový cyklus zahŕňa prípravu na delenie a samotné delenie. Kontrolné mechanizmy regulujú jeho priebeh.",
+    "questionIds": [
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140
+    ],
+    "terms": [
+      "Pre jednotlivé fázy bunkového cyklu eukaryotickej bunky platí, že v",
+      "Medzi fázy mitotického delenia v eukaryotických bunkách patria",
+      "V ktorej fáze mitózy sa chromozómy skracujú a hrubnú"
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Rozmnožovanie",
+    "text": "Pohlavné a nepohlavné rozmnožovanie sa líšia zapojením pohlavných buniek a genetickou rozmanitosťou potomstva.",
+    "questionIds": [
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150
+    ],
+    "terms": [
+      "Základné spôsoby rozmnožovania u mnohobunkových organizmov sú",
+      "Čo je podstatné pre vegetatívne rozmnožovanie z hľadiska dedičnosti",
+      "Pri ktorom z dvoch hlavných spôsobov rozmnožovaniamnohobunkových organizmov"
+    ]
+  },
+  {
+    "id": 16,
+    "title": "Pohlavné bunky",
+    "text": "Gaméty nesú haploidnú sadu chromozómov. Pri oplodnení sa spájajú do diploidnej zygoty.",
+    "questionIds": [
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160
+    ],
+    "terms": [
+      "Ľudské vajíčka",
+      "Gonochorizmus je",
+      "Hermafroditizmus je"
+    ]
+  },
+  {
+    "id": 17,
+    "title": "Zárodočné listy a vývin",
+    "text": "Embryonálny vývin zahŕňa diferenciáciu buniek. Zo zárodočných listov vznikajú rozličné tkanivá a orgány.",
+    "questionIds": [
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170
+    ],
+    "terms": [
+      "Z ektodermu sa diferencujú",
+      "Z vnútornej zárodočnej vrstvy sa diferencujú",
+      "Základnou stavebnou jednotkou nukleových kyselín je"
+    ]
+  },
+  {
+    "id": 18,
+    "title": "Gametogenéza",
+    "text": "Spermatogenéza a oogenéza vedú k vzniku pohlavných buniek. Pri meióze sa znižuje počet chromozómov.",
+    "questionIds": [
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180
+    ],
+    "terms": [
+      "Čo platí pre spermatogenézu a oogenézu",
+      "Vlastnosti bielkovín, ktoré podmieňujú ich špecifické funkcie v bunke,sú da",
+      "Gény pre RNA kódujú poradie"
+    ]
+  },
+  {
+    "id": 19,
+    "title": "Expresia génov",
+    "text": "Pri transkripcii vzniká RNA podľa DNA. Pri translácii sa podľa mRNA vytvára polypeptidový reťazec.",
+    "questionIds": [
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191
+    ],
+    "terms": [
+      "Expresia štruktúrneho génu",
+      "Aký je smer syntézy mRNA",
+      "Ktoré tvrdenie nie je správne"
+    ]
+  },
+  {
+    "id": 20,
+    "title": "Nukleotidy a genetický kód",
+    "text": "Nukleotid pozostáva z bázy, cukru a fosfátu. Komplementarita báz je dôležitá pri prenose genetickej informácie.",
+    "questionIds": [
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      198,
+      199,
+      200,
+      201
+    ],
+    "terms": [
+      "Každý nukleotid pozostáva z",
+      "Na základe komplementarity báz sa tymín viaže s",
+      "Aké sú antikodóny v tRNA k úseku mRNA CGAUAUCGUGCU"
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Operón a regulácia génov",
+    "text": "Operón umožňuje koordinovať expresiu viacerých génov u prokaryotov. Regulačné oblasti ovplyvňujú prepis DNA.",
+    "questionIds": [
+      202
+    ],
+    "terms": [
+      "O operóne Escherichia coli platí, že"
+    ]
+  }
+]
